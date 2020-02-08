@@ -16,7 +16,6 @@ w.Hakademy.util.clock = function(selector, options){
     var defaultOption = {
         backgroundColor:"rgba(0,0,0,0.5)",
         textColor:"white",
-        increment:true,
         fontFamily:null,
         fontSize:50,
         border:null,

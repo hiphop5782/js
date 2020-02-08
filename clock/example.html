@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/gh/hiphop5782/js/clock/hakademy-clock.min.js"></script>
+    <script>
+        window.addEventListener("load", function(){
+            var clock = new Hakademy.util.clock(".clock",{
+                type:"clock"
+            });
+            var clock2 = new Hakademy.util.clock(".clock2", {
+                type:"clock",
+                msVisible:true
+            });
+
+            var stopwatch = new Hakademy.util.clock(".stop-watch", {
+                type:"stopwatch"
+            });
+            stopwatch.start();
+
+            var stopwatchMillis = new Hakademy.util.clock(".stop-watch-millis", {
+                type:"stopwatch",
+                msVisible:true,
+                border:"5px double black",
+                isBorderRounded:false,
+                backgroundColor:"white",
+                textColor:"black",
+                fontFamily:"굴림",
+            });
+            stopwatchMillis.start();
+
+            var timer1 = new Hakademy.util.clock(".timer1", {
+                type:"timer",
+                hour:1,
+                minute:0,
+                second:0
+            });
+            timer1.start();
+
+            var timer2 = new Hakademy.util.clock(".timer2", {
+                type:"timer",
+                hour:0,
+                minute:0,
+                second:10,
+                hourVisible:false,
+                callback:function(timer){
+                    console.log("타이머 완료");
+                    console.log(timer);
+                    timer.set("backgroundColor", "black");
+                    timer.set("textColor", "gray");
+                },
+                startButton:".timer2-btn-start",
+                stopButton:".timer2-btn-stop",
+                resetButton:".timer2-btn-reset",
+            });
+        });
+    </script>
+</head>
+<body>
+    <div style="width:450px">
+        <div class="clock"></div>
+        <hr>
+        <div class="clock2"></div>
+        <hr>
+        <div class="stop-watch"></div>
+        <hr>
+        <div class="stop-watch-millis"></div>
+        <hr>
+        <div class="timer1"></div>
+        <hr>
+        <div class="timer2"></div>
+        <button class="timer2-btn-start">start</button>
+        <button class="timer2-btn-stop">stop</button>
+        <button class="timer2-btn-reset">reset</button>
+    </div>
+</body>
+</html>
