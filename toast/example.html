@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        body{
+            height:350px;
+        }
+    </style>
+    
+    <script>
+        Hakademy.util.toast.initializeOnLoad({
+            duration:2,//메시지 출력 시간(초)
+            position:"top",//출력 위치 : top, bottom, right, left 또는 혼합
+            positionStyle:"nonblock",//출력스타일(block/nonblock)
+            backgroundColor:"rgba(0,0,0,0.5)",//배경색(css style)
+            fontColor:"white",//글자색(css style)
+            fontSize:10,//글자크기(px)
+            fontFamily:null,//글꼴(css style)
+            isBorderRounded:true,//둥근 테두리
+            isFade:true,//페이드 인/아웃 적용여부
+        }); 
+    </script>
+
+    <script src="https://code.jquery.com/jquery-latest.js"></script>
+    <script>
+        $(function(){
+            $("button.toast").click(function(){
+                var option = {
+                    position : $("input[name=position]:checked").val(),
+                    positionStyle : $("input[name=positionStyle]:checked").val(),
+                    isBorderRounded : $("input[name=isBorderrounded]").prop("checked"),
+                    duration : $("input[name=duration]").val(),
+                    backgroundColor : $("input[name=backgroundColor]").val(),
+                    fontColor : $("input[name=fontColor]").val(),
+                    isFade : $("input[name=isFade]").prop("checked")
+                };
+
+                var text = $("input[name=text]").val();
+                Hakademy.toast.set(option);
+                Hakademy.toast.push(text);
+            });
+        });
+    </script>
+</head>
+<body>
+    [position] : 
+    <input type="radio" name="position" value="top" checked> top
+    <input type="radio" name="position" value="top-left"> top-left
+    <input type="radio" name="position" value="top-right"> top-right
+    <input type="radio" name="position" value="left"> left
+    <input type="radio" name="position" value="right"> right
+    <input type="radio" name="position" value="bottom"> bottom
+    <input type="radio" name="position" value="bottom-left"> bottom-left
+    <input type="radio" name="position" value="bottom-right"> bottom-right
+    <br>
+    [positionStyle] :
+    <input type="radio" name="positionStyle" value="nonblock" checked> nonblock
+    <input type="radio" name="positionStyle" value="block"> block
+    <br>
+    [둥근 테두리] : 
+    <input type="checkbox" name="isBorderRounded" checked> isBorderRounded
+    <br>
+    [duration] : 
+    <input type="number" name="duration" value="2"> 
+    <br>
+    [backgroundColor] : <input type="text" name="backgroundColor" value="rgba(0,0,0,0.5)">
+    <br>
+    [fontColor] : <input type="text" name="fontColor" value="white">
+    
+    <br>
+    [isFade] : <input type="checkbox" name="isFade" checked>
+    <br>
+    [출력 글자] : 
+    <input type="text" name="text" value="알림 테스트">
+
+    <hr>
+    <button class="toast">메시지 출력</button>
+</body>
+</html>
