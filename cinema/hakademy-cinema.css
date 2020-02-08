@@ -1,0 +1,37 @@
+.cinema-seat-area{
+    box-sizing: border-box;
+    border:1px solid black;
+}
+.cinema-seat-area > .cinema-screen{
+    width:80%;
+    border:1px solid blue;
+    text-align: center;
+    color:blue;
+    margin:0.2rem auto;
+}
+.cinema-seat-area > .cinema-screen::after{
+    content:"스크린";
+}
+.cinema-seat-area > .cinema-seat-row{
+    position: relative;
+    width:100%;
+}
+.cinema-seat-area > .cinema-seat-row::after{
+    content:"";
+    display:block;
+    clear:both;
+}
+.cinema-seat-area > .cinema-seat-row > .cinema-seat{
+    float:left;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.cinema-seat-area > .cinema-seat-row > .cinema-seat:not(.empty){
+    background-image: url("http://www.sysout.co.kr/file/image/285");
+}
+.cinema-seat-area > .cinema-seat-row > .cinema-seat.active:not(.empty){
+    background-image: url("http://www.sysout.co.kr/file/image/283");
+}
+.cinema-seat-area > .cinema-seat-row > .cinema-seat.disabled:not(.empty){
+    background-image: url("http://www.sysout.co.kr/file/image/284");
+}
