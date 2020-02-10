@@ -3,29 +3,33 @@
     w.Hakademy.util = w.Hakademy.util || {};
     w.Hakademy.util.filterNodesByClassName = function(list, className){
         var rowList = [];
-        list.forEach(function(u){
+        for(var i=0; i < list.length; i++){
             try{ 
-                if(u.classList.contains(className)){
-                    rowList.push(u);
+                if(list[i].classList.contains(className)){
+                    rowList.push(list[i]);
                 }
             }catch(e){}
-        });
+        }
         return rowList;
     };
     w.Hakademy.Reservation = function(area){
-        var rowsize = area.getAttribute("data-rowsize");
-        if(!rowsize)
+        var children = area.children;
+        var seat_area = Hakademy.util.filterNodesByClassName(children, "cinema-seat-area")[0];
+        if(!seat_area){
+            throw "cinema-seat-area가 존재하지 않습니다";
+        }
+
+        var rowsize = seat_area.getAttribute("data-rowsize");      
+        if(!rowsize){
             throw "cinema-seat-area에 data-rowsize를 정의하십시오";
-        this.rowsize = function(){
-            return rowsize;
-        };
-    
-        var colsize = area.getAttribute("data-colsize");
-        if(!colsize)
+        }
+        this.rowsize = function(){ return rowsize; };
+        
+        var colsize = seat_area.getAttribute("data-colsize");
+        if(!colsize){
             throw "cinema-seat-area에 data-colsize를 정의하십시오";
-        this.colsize = function(){
-            return colsize;
-        };
+        }
+        this.colsize = function(){ return colsize; };
 
         var sendName = area.getAttribute("data-name");
         if(!sendName){
@@ -33,7 +37,14 @@
             sendName = "seat";
         }
 
-        var width = area.offsetWidth;
+        var width;
+        try{
+            width = parseInt(window.getComputedStyle(seat_area, null).width);
+        }
+        catch(e){
+            width = parseInt(seat_area.currentStyle.height);
+        }
+
         this.width = function(){
             return width;
         };
@@ -43,54 +54,49 @@
             return size;
         };
 
-        var rowList = Hakademy.util.filterNodesByClassName(area.childNodes, "cinema-seat-row");
+        var seatList = seat_area.children;
+        var cloneList = [];
+        while(seatList.length > 0){
+            var item = seatList[0];
+            var cloneNode = item.cloneNode(true);
+            cloneList.push(cloneNode);
+            seat_area.removeChild(item);
+        }
 
-        var line = rowList.shift();
-        for(var r=1; r <= rowsize; r++){
-            //빈줄 추가
-            if(!line || parseInt(line.getAttribute("data-row")) != r){
-                var rowDiv = createEmptyRow();
-                if(line)
-                    area.insertBefore(rowDiv, line);
-                else
-                    area.appendChild(rowDiv);
-                for(var q=1; q <= colsize; q++){
-                    rowDiv.appendChild(createEmptySeat(size));
-                }
-                continue;
-            }
-
-            //칸 추가
-            var colList = Hakademy.util.filterNodesByClassName(line.childNodes, "cinema-seat");
-            
-            var cell = colList.shift();
-            for(var c=1; c < colsize; c++){
-                if(!cell || parseInt(cell.getAttribute("data-column")) != c){
-                    var seat = createEmptySeat(size);
-                    if(cell)
-                        line.insertBefore(seat, cell);
-                    else
-                        line.appendChild(seat);
+        var seat_unit = cloneList.shift();
+        for(var r = 1; r <= rowsize ; r++){
+            for(var c = 1; c <= colsize; c++){
+                //배치할 좌석이 없으면 전부 빈칸으로 채움
+                if(!cloneList.length){
+                    appendEmptySeat(seat_area, size);
                     continue;
                 }
 
-                cell.style.width = size+"px";
-                cell.style.height = size+"px";
+                var rownum = parseInt(seat_unit.getAttribute("data-row"));
+                var colnum = parseInt(seat_unit.getAttribute("data-column"));
 
-                if(!cell.classList.contains("disabled")){
-                    var checkbox = document.createElement("input");
-                    checkbox.type = "checkbox"
-                    checkbox.name = sendName;
-                    checkbox.value = r+"-"+c;
-                    checkbox.style.display = "none";
-                    checkbox.checked = cell.classList.contains("active");
-                    cell.appendChild(checkbox);
-                    cell.addEventListener("click", clickListener);
+                //규격을 벗어날 경우 skip
+                if(rownum > rowsize || rownum < 1 || colnum > colsize || colnum < 1) 
+                    continue;
+                
+                //줄칸이 맞지 않으면 빈칸으로 채움
+                if(r != rownum || c != colnum){
+                    appendEmptySeat(seat_area, size);
                 }
-                cell = colList.shift();
+                //나머지 좌석
+                else{
+                    if(seat_unit.classList.contains("disabled")){
+                        appendDisabledSeat(seat_area, size);
+                    }
+                    else if(seat_unit.classList.contains("active")){
+                        appendActiveSeat(seat_area, size);
+                    }
+                    else{
+                        appendNormalSeat(seat_area, size);
+                    }
+                    seat_unit = cloneList.shift();
+                }
             }
-
-            line = rowList.shift();
         }
 
         //좌석 클릭 이벤트 리스너
@@ -106,18 +112,49 @@
             }
         }
 
-        //좌석 줄 생성
-        function createEmptyRow(){
-            var row = document.createElement("div");
-            row.classList.add("cinema-seat-row");
-            return row;
+        function appendDisabledSeat(area, size){
+            var seat = createEmptySeat(size);
+            seat.classList.add("disabled");
+            area.appendChild(seat);
         }
 
-        //빈 좌석 생성
+        function appendNormalSeat(area, size){
+            var seat = createEmptySeat(size);
+            var checkbox = document.createElement("input");
+            checkbox.type = "checkbox"
+            checkbox.name = sendName;
+            checkbox.value = r+"-"+c;
+            checkbox.style.display = "none";
+            checkbox.checked = false;
+            seat.appendChild(checkbox);
+            seat.addEventListener("click", clickListener);
+            area.appendChild(seat);
+        }
+
+        function appendActiveSeat(area, size){
+            var seat = createEmptySeat(size);
+            var checkbox = document.createElement("input");
+            checkbox.type = "checkbox"
+            checkbox.name = sendName;
+            checkbox.value = r+"-"+c;
+            checkbox.style.display = "none";
+            checkbox.checked = true;
+            seat.classList.add("active");
+            seat.appendChild(checkbox);
+            seat.addEventListener("click", clickListener);
+            area.appendChild(seat);
+        }
+
+        function appendEmptySeat(area, size){
+            var seat = createEmptySeat(size);
+            seat.classList.add("empty");
+            area.appendChild(seat);
+        }
+
+        //기본 좌석 생성
         function createEmptySeat(size){
             var seat = document.createElement("div");
             seat.classList.add("cinema-seat");
-            seat.classList.add("empty");
             seat.style.width = size+"px";
             seat.style.height = size+"px";
             return seat;
