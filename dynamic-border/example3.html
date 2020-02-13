@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="./hakademy-border.css">
+    <style>
+        .a, .b, .c, .d{
+            padding:1rem;
+        }        
+    </style>
+    <script src="./hakademy-border.js"></script>
+    <script>
+        window.addEventListener("load", function(){
+            var bd1 = new Hakademy.util.DynamicBorder(".a", {
+                type:"spin-single",
+                duration:4,
+                borderColor:"blue",
+                borderThickness:5,
+                when:"always"
+            });
+            var bd2 = new Hakademy.util.DynamicBorder(".b",{
+                type:"spin-single",
+                duration:4,
+                borderColor:"red",
+                borderThickness:5,
+                when:"hover"
+            });
+            var bd3 = new Hakademy.util.DynamicBorder(".c", {
+                type:"spread-single",
+                duration:4,
+                borderColor:"rainbow",
+                borderThickness:5,
+                when:"always",
+            });
+            var bd4 = new Hakademy.util.DynamicBorder(".d", {
+                type:"spread-single",
+                duration:4,
+                borderColor:"rainbow",
+                borderThickness:5,
+                when:"hover",
+            });
+            var bd5 = new Hakademy.util.DynamicBorder(".e", {
+                type:"spread-single",
+                duration:4,
+                borderColor:"rainbow",
+                borderThickness:5,
+                when:"always",
+            });
+        });        
+    </script>
+</head>
+<body>
+    <h1>dynamic border example</h1>
+    <div style="padding:50px;">
+        <button class="a">single-spin always</button>
+        <button class="b">single-spin hover</button>
+        <div class="c">spread-spin always</div>
+        <div class="d">spread-spin hover</div>
+        <h1 class="e" style="padding:1rem;">spread-spin always</h1>
+    </div>
+</body>
+</html>
