@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .stringchecker-result-line{
+            padding:0.7rem;
+            border:2px transparent solid;
+            box-sizing: border-box;
+        }
+    </style>
+    <script>
+        (function(w){
+            w.Hakademy = w.Hakademy || {};
+            w.Hakademy.util = w.Hakademy.util || {};
+
+            //상수 정의
+            w.TOTAL = "TOTAL";
+            w.ALPHA_LOWER = "ALPHA_LOWER";
+            w.ALPHA_UPPER = "ALPHA_UPPER";
+            w.NUMBER = "NUMBER";
+            w.KOREAN = "KOREAN";
+            w.WHITESPACE = "WHITESPACE";
+            w.SPECIAL_CHARACTER = "SPECIAL_CHARACTER";
+
+            w.Hakademy.util.StringChecker = function(input, options){
+                this.input_el = document.querySelector(input);
+
+                if(!this.input_el)
+                    throw "입력창이 존재하지 않습니다";
+                
+                var defaultOptions = {
+                    display:null,
+                    special_list:'!@#$%^&*()-_+=<>/?',
+                    detect:{
+                        TOTAL:{
+                            min:8,max:20
+                        },
+                        ALPHA_LOWER:{
+                            min:1
+                        },
+                        ALPHA_UPPER:{
+                            min:1
+                        },
+                        KOREAN:{},
+                        NUMBER:{
+                            min:1
+                        },
+                        WHITESPACE:{},
+                        SPECIAL_CHARACTER:{
+                            min:1
+                        }
+                    }
+                };
+                this.options = Object.assign({}, defaultOptions, options);
+
+                var app = this;
+                this.input_el.addEventListener("input", function(){
+                    app.checkListener();
+                });
+                this.input_el.addEventListener("paste", function(){
+                    app.checkListener();
+                });
+                this.input_el.addEventListener("change", function(){
+                    app.checkListener();
+                });
+            };
+
+            w.Hakademy.util.StringChecker.prototype.checkListener = function(){
+                var str = this.input_el.value;
+                
+                var count = {
+                    ALPHA_LOWER:0,
+                    ALPHA_UPPER:0,
+                    KOREAN:0,
+                    WHITESPACE:0,
+                    SPECIAL_CHARACTER:0,
+                    NUMBER:0
+                };
+
+                
+                for(var i=0; i < str.length; i++){
+                    var ch = str.charCodeAt(i);
+                    if(ch >= 'a'.charCodeAt(0) && ch <= 'z'.charCodeAt(0)){
+                        count[ALPHA_LOWER] += 1;
+                    }
+                    else if(ch >= 'A'.charCodeAt(0) && ch <= 'Z'.charCodeAt(0)){
+                        count[ALPHA_UPPER] += 1;
+                    }
+                    else if(ch >= '0'.charCodeAt(0) && ch <= '9'.charCodeAt(0)){
+                        count[NUMBER] += 1;
+                    }
+                    else if(
+                        (ch >= '가'.charCodeAt(0) && ch <= '힣'.charCodeAt(0))
+                        || (ch >= 'ㄱ'.charCodeAt(0) && ch <= 'ㅎ'.charCodeAt(0))
+                        || (ch >= 'ㅏ'.charCodeAt(0) && ch <= 'ㅣ'.charCodeAt(0))
+                        ){
+                        count[KOREAN] += 1;
+                    }
+                    else if(this.options.special_list.indexOf(ch) >= 0){
+                        count[SPECIAL_CHARACTER] += 1;
+                    }
+                    else if(ch == ' '.charCodeAt(0)){
+                        count[WHITESPACE] += 1;
+                    }
+                }
+
+                count[TOTAL] = str.length;
+
+                if(this.options.display){
+                    // this.displayCountResult(count);
+                    this.displayValidateResult(count);
+                }
+            };
+
+            w.Hakademy.util.StringChecker.prototype.displayCountResult = function(count){
+                var el = document.querySelector(this.options.display);
+                
+                el.innerHTML = "";
+                for(var i in count){
+                    el.innerHTML += "<div class='stringchecker-result-line'>"+i+" : "+count[i]+"개</div>";    
+                }
+            };
+
+            w.Hakademy.util.StringChecker.prototype.displayValidateResult = function(count){
+                var el = document.querySelector(this.options.display);
+
+                var totalPass = true;
+
+                el.innerHTML = "";
+                for(var i in count){
+                    if(isEmptyObject(this.options.detect[i])) continue;
+
+                    var min = this.options.detect[i].min || -1;
+                    var max = this.options.detect[i].max || -1;
+                    var pass = true;
+                    // console.log(i, min, max, count[i]);
+                    pass = pass && min<= count[i];
+                    if(max >= 0)
+                        pass = pass && count[i] <= max;
+                    el.innerHTML += "<div class='stringchecker-result-line'>"+i+" : "+pass+"</div>";    
+
+                    totalPass = totalPass && pass;
+                }
+                el.innerHTML += "<div class='stringchecker-result-line'>최종 결과 : "+totalPass+"</div>";    
+            };
+
+            function isEmptyObject(obj){
+                for(var p in obj){
+                    if(obj.hasOwnProperty(p))
+                        return false;
+                }
+                return true;
+            }
+        })(window);        
+    </script>
+    <script>
+        window.addEventListener("load", function(){
+            var app1 = new Hakademy.util.StringChecker(".a", {
+                display:".result",
+            });
+        });        
+    </script>
+</head>
+<body>
+    <input type="text" name="password" class="a">
+    <div class="result"></div>
+</body>
+</html>

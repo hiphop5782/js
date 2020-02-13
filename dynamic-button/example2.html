@@ -5,15 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
-        .dynamic-button{
+        .dynamic-border{
             position:relative; 
             background-color:transparent; 
             border:none; 
             outline:none; 
             overflow:hidden;
             box-sizing: border-box;
+            cursor:pointer;
         }
-        .dynamic-button > .inner-top{
+        .dynamic-border.spin-single > .inner-top,
+        .dynamic-border.spin-single-infinite > .inner-top{
             position:absolute; 
             top:0; 
             left:0; 
@@ -21,7 +23,8 @@
             height:1px; 
             transform:translateX(-100%);
         }
-        .dynamic-button > .inner-right{
+        .dynamic-border.spin-single > .inner-right,
+        .dynamic-border.spin-single-infinite > .inner-right{
             position:absolute; 
             top:0; 
             right:0; 
@@ -29,7 +32,8 @@
             height:100%; 
             transform:translateY(-100%);
         }
-        .dynamic-button > .inner-bottom{
+        .dynamic-border.spin-single > .inner-bottom,
+        .dynamic-border.spin-single-infinite > .inner-bottom{
             position:absolute; 
             bottom:0; 
             left:0; 
@@ -37,84 +41,75 @@
             height:1px; 
             transform:translateX(100%);
         }
-        .dynamic-button > .inner-left{
+        .dynamic-border.spin-single > .inner-left,
+        .dynamic-border.spin-single-infinite > .inner-left{
             position:absolute; 
-            bottom:0; 
+            top:0;
             left:0; 
             width:1px; 
             height:100%; 
             transform:translateY(100%);
         }
-        .dynamic-button > .inner-top.spin-single{
-            animation:border-spin-single-top;
-        }
-        .dynamic-button > .inner-bottom.spin-single{
-            animation:border-spin-single-bottom;
-        }
-        .dynamic-button > .inner-left.spin-single{
-            animation:border-spin-single-left;
-        }
-        .dynamic-button > .inner-right.spin-single{
-            animation:border-spin-single-right;
-        }
-        @keyframes border-spin-single-top{
-            0%{
+        @keyframes spin-single-top{
+            from{
                 transform:translateX(-100%);
             }
-            50%,100%{
+            to{
                 transform:translateX(100%);
             }
         }
-        @keyframes border-spin-single-right{
-            0%,25%{
+        @keyframes spin-single-right{
+            from{
                 transform:translateY(-100%);
             }
-            75%,100%{
+            to{
                 transform:translateY(100%);
             }
         }
-        @keyframes border-spin-single-bottom{
-            0%,50%{
+        @keyframes spin-single-bottom{
+            from{
                 transform:translateX(100%);
             }
-            100%{
+            to{
                 transform:translateX(-100%);
             }
         }
-        @keyframes border-spin-single-left{
-            0%{
-                transform:translateY(0%);
-            }
-            25%,75%{
-                transform:translateY(-100%);
-            }
-            75.1%{
+        @keyframes spin-single-left{
+            from{
                 transform:translateY(100%);
             }
-            100%{
-                transform:translateY(0%);
+            to{
+                transform:translateY(-100%);
             }
         }
     </style>
     <script>
         (function(w){
-            document.styleSheets[0].addRule(".dynamic-button", "position:relative; background-color:transparent; border:none; outline:none; overflow:hidden;");
-            document.styleSheets[0].addRule(".dynamic-button > .inner-top", "position:absolute; top:0; left:0; width:100%; height:1px; transform:translateX(-100%);");
-            document.styleSheets[0].addRule(".dynamic-button > .inner-right", "position:absolute; top:0; right:0; width:1px; height:100%; transform:translateY(-100%);");
-            document.styleSheets[0].addRule(".dynamic-button > .inner-bottom", "position:absolute; bottom:0; left:0; width:100%; height:1px; transform:translateX(100%);");
-            document.styleSheets[0].addRule(".dynamic-button > .inner-left", "position:absolute; bottom:0; left:0; width:1px; height:100%; transform:translateY(100%);");
-
             w.Hakademy = w.Hakademy || {};
             w.Hakademy.util = w.Hakademy.util || {};
-            w.Hakademy.util.dynamic_button = function(selector, options){
-                var defaultOptions = {};
+            w.Hakademy.util.DynamicBorder = function(selector, options){
+                var defaultOptions = {
+                    type:"spin-single",
+                    duration:8,
+                    borderColor:"black",
+                    borderThickness:1,
+                    when:"always",
+                };
                 this.el = document.querySelector(selector);
                 this.options = Object.assign(defaultOptions, options);
 
                 this.createStructure();
             };
-            w.Hakademy.util.dynamic_button.prototype.createStructure = function(){
-                this.el.classList.add("dynamic-button");
+            w.Hakademy.util.DynamicBorder.prototype.createStructure = function(){
+                this.el.classList.add("dynamic-border");
+                this.el.classList.add(this.options.type);
+                switch(this.options.type){
+                    case "spin-single": this.createStructureForSingleSpin();
+                    case "spin-dotted": this.createStructureForDottedSpin();
+                }
+            };
+            w.Hakademy.util.DynamicBorder.prototype.createStructureForSingleSpin = function(){
+                this.el.style.padding = this.options.borderThickness + "px";
 
                 var top = document.createElement("span");
                 var left = document.createElement("span");
@@ -122,49 +117,88 @@
                 var bottom = document.createElement("span");
 
                 top.classList.add("inner-top");
-                left.classList.add("inner-left");
                 right.classList.add("inner-right");
                 bottom.classList.add("inner-bottom");
+                left.classList.add("inner-left");
 
-                top.classList.add("spin-single");
-                right.classList.add("spin-single");
-                left.classList.add("spin-single");
-                bottom.classList.add("spin-single");
+                var duration = this.options.duration / 4;
 
-                top.style.backgroundImage = "linear-gradient(to right, transparent, red)";
-                right.style.backgroundImage = "linear-gradient(to bottom, transparent, red)";
-                bottom.style.backgroundImage = "linear-gradient(to left, transparent, red)";
-                left.style.backgroundImage = "linear-gradient(to top, transparent, red)";
+                top.style.backgroundImage = "linear-gradient(to right, transparent, "+this.options.borderColor+")";
+                top.style.height = this.options.borderThickness + "px";
+                
+                right.style.backgroundImage = "linear-gradient(to bottom, transparent, "+this.options.borderColor+")";
+                right.style.width = this.options.borderThickness + "px";
+                
+                bottom.style.backgroundImage = "linear-gradient(to left, transparent, "+this.options.borderColor+")";
+                bottom.style.height = this.options.borderThickness + "px";
+                
+                left.style.backgroundImage = "linear-gradient(to top, transparent, "+this.options.borderColor+")";
+                left.style.width = this.options.borderThickness + "px";
 
-                top.style.animationDuration = "5s";
-                top.style.animationIterationCount = "infinite";
-                top.style.animationTimingFunction = "linear";
-                right.style.animationDuration = "5s";
-                right.style.animationIterationCount = "infinite";
-                right.style.animationTimingFunction = "linear";
-                bottom.style.animationDuration = "5s";
-                bottom.style.animationIterationCount = "infinite";
-                bottom.style.animationTimingFunction = "linear";
-                left.style.animationDuration = "5s";
-                left.style.animationIterationCount = "infinite";
-                left.style.animationTimingFunction = "linear";
-
+                //when에 따라 다르게 처리
+                if(this.options.when === "always"){
+                    top.style.animation = this.options.type+"-top " + duration + "s linear infinite";
+                    right.style.animation = this.options.type+"-right " + duration + "s linear infinite";
+                    right.style.animationDelay = duration / 2 + "s";
+                    bottom.style.animation = this.options.type+"-bottom " + duration + "s linear infinite";
+                    left.style.animation = this.options.type+"-left " + duration + "s linear infinite";
+                    left.style.animationDelay = duration / 2 + "s";
+                }
+                else if(this.options.when === "hover"){
+                    var el = this.el;
+                    var options = this.options;
+                    this.el.addEventListener("mouseenter", function(){
+                        top.style.animation = options.type+"-top " + duration + "s linear infinite";
+                        right.style.animation = options.type+"-right " + duration + "s linear infinite";
+                        right.style.animationDelay = duration / 2 + "s";
+                        bottom.style.animation = options.type+"-bottom " + duration + "s linear infinite";
+                        left.style.animation = options.type+"-left " + duration + "s linear infinite";
+                        left.style.animationDelay = duration / 2 + "s";
+                    });
+                    this.el.addEventListener("mouseout", function(){
+                        top.style.animation = "";
+                        right.style.animation = "";
+                        right.style.animationDelay = "";
+                        bottom.style.animation = "";
+                        left.style.animation = "";
+                        left.style.animationDelay = "";
+                    });
+                }
+                
                 this.el.appendChild(top);
                 this.el.appendChild(left);
                 this.el.appendChild(right);
                 this.el.appendChild(bottom);
-
             };
-
+            w.Hakademy.util.DynamicBorder.prototype.createStructureForDottedSpin = function(){
+                
+            };
         })(window);
     </script>
     <script>
         window.addEventListener("load", function(){
-            var bt1 = new Hakademy.util.dynamic_button(".border-spin");
+            var bt1 = new Hakademy.util.DynamicBorder(".a", {
+                type:"spin-single",
+                duration:4,
+                borderColor:"blue",
+                borderThickness:5,
+                when:"always"
+            });
+            var bt2 = new Hakademy.util.DynamicBorder(".b",{
+                type:"spin-single",
+                duration:4,
+                borderColor:"red",
+                borderThickness:5,
+                when:"hover"
+            });
         });        
     </script>
 </head>
 <body>
-    <button class="border-spin">Border Spin Button</button>
+    <h1>dynamic border example</h1>
+    <div style="padding:50px;">
+        <button class="a">single-spin always</button>
+        <button class="b">single-spin hover</button>
+    </div>
 </body>
 </html>
