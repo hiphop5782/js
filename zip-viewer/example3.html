@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .path-viewer{
+            position:fixed;
+            top:0;
+            left:0;
+            right:50%;
+            bottom:0;
+            overflow-y: scroll;
+            overflow-x: auto;
+        }
+        .text-viewer{
+            position:fixed;
+            top:0;
+            right:0;
+            left:50%;
+            bottom:0;
+            overflow-y:scroll;
+            overflow-x:scroll;
+        }
+        .path-viewer > li{
+            cursor:pointer;
+        }
+        .path-viewer > li:hover{
+            background-color:black;
+            color:white;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- item template -->
+        <script type="text/x-template" id="item-template">
+            <li>
+                <div
+                    :class="{bold: isFolder}"
+                    @click="toggle">
+                    {{ item.name }}
+                    <span v-if="isFolder">[{{ isOpen ? '-' : '+' }}]</span>
+                </div>
+                <ul v-show="isOpen" v-if="isFolder">
+                    <tree-item
+                    class="item"
+                    v-for="(child, index) in item.children"
+                    :key="index"
+                    :item="child"
+                    ></tree-item>
+                </ul>
+            </li>
+        </script>
+      
+        <p>(You can double click on an item to turn it into a folder.)</p>
+      
+        <!-- the demo root element -->
+        <ul id="zip-viewer">
+            <tree-item
+                v-if="node"
+                class="item"
+                :item="node"
+                ></tree-item>
+        </ul>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="./jszip.js"></script>
+    <script src="./jszip_utils.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/vue"></script>
+    <script src="./mime-converter.js"></script>
+    <script>
+        // define the tree-item component
+        Vue.component('tree-item', {
+            template: '#item-template',
+            props: {
+                item: Object
+            },
+            data: function () {
+                return {
+                    isOpen: false
+                }
+            },
+            computed: {
+                isFolder: function () {
+                return this.item.children &&
+                    this.item.children.length
+                }
+            },
+            methods: {
+                toggle: function () {
+                    if (this.isFolder) {
+                        this.isOpen = !this.isOpen
+                    }
+                },
+            }
+        })
+
+        // boot up the demo
+        var url = "./toast.zip";
+        var app = new Vue({
+            el: '#zip-viewer',
+            data: {
+                node: null,
+                template:{
+                    name:"root",
+                    fullpath:"/",
+                    mimetype:null,
+                    type:"directory",
+                    path:"",
+                    depth:0,
+                    children:[],
+                },
+            },
+            methods: {
+                insertToList:function(node, object){
+                    // console.log(node.fullpath, object.fullpath, node.fullpath===object.path);
+                    if(node == null){
+                        node = Object.assign({}, {}, this.template);
+                        this.node = node;
+                    }
+
+                    node.children = node.children || []; 
+                    if(node.fullpath === object.path){
+                        node.children.push(object);
+                        // console.log("push");
+                    }
+                    else{
+                        node.children.forEach(o=>{
+                            this.insertToList(o, object);
+                        });
+                    }
+                },
+                setData:function(zip){
+                    // console.log(zip);
+                    if(zip.mimetype){
+                        this.activeData = zip;
+                    }
+                    else{
+                        this.activeData = null;
+                    }
+                },
+                path2Object:function(path, entry){
+                    var object = {};
+
+                    //fullpath
+                    object.fullpath = "/" + path;
+
+                    //mime-type
+                    object.mimetype = Hakademy.util.mime2text(path);
+                    
+                    //type
+                    var isEndSlash = path.endsWith("/");
+                    if(isEndSlash){
+                        object.type = "directory";
+                        path = path.substr(0, path.length - 1);
+                    }
+                    else{
+                        object.type = "file";
+                    }
+                    
+                    //name
+                    var index = path.lastIndexOf("/");
+                    if(index < 0){//root
+                        object.name = path;
+                    }
+                    else{//file
+                        object.name = path.substr(index + 1 , path.length);
+                    }
+
+                    //path
+                    if(index < 0){
+                        object.path = "/";
+                    }
+                    else{
+                        object.path = "/" + path.substr(0, path.length - object.name.length);
+                    }
+
+                    //depth
+                    // object.depth = (object.path.match(/\//g) || []).length;
+
+                    //text
+                    entry.async("blob").then(content=>{
+                        var reader = new FileReader();
+                        reader.onload = function(e){
+                            object.text = e.target.result;
+                        };
+                        reader.readAsText(content);
+                    })
+                    return object;
+                },
+            },
+            created:function(){
+                var vm = this;
+                var promise = new JSZip.external.Promise(function (resolve, reject) {
+                    JSZipUtils.getBinaryContent(url, function(err, data) {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(data);
+                        }
+                    });
+                });
+                promise.then(function(data){
+                    return JSZip.loadAsync(data);
+                })
+                .then(function(zip){
+                    zip.forEach(function(path, entry){
+                        var object = vm.path2Object(path, entry);
+                        vm.insertToList(vm.node, object);
+                    });
+                });
+            },
+        })
+
+        // var filename = "toast.zip";
+
+        // Vue.component('tree-item', {
+        //     template:"#item-template",
+        //     props:{
+        //         item:Object,
+        //     },
+        //     data:function(){
+        //         return {
+        //             isOpen:false,
+        //         };
+        //     },
+        //     computed:{
+        //         isFolder:function(){
+        //             return this.item.type === "directory";
+        //         }
+        //     },
+        //     methods: {
+        //         toggle: function () {
+        //             if (this.isFolder) {
+        //                 this.isOpen = !this.isOpen
+        //             }
+        //         },
+        //         makeFolder: function () {
+        //             if (!this.isFolder) {
+        //                 this.$emit('make-folder', this.node)
+        //                 this.isOpen = true
+        //             }
+        //         }
+        //     },
+            
+        // });
+
+        // var viewer = new Vue({
+        //     el:"#zip-viewer",
+        //     data:{
+        //         node:{
+        //             name:"root",
+        //             fullpath:"/",
+        //             mimetype:null,
+        //             type:"directory",
+        //             path:"",
+        //             depth:0,
+        //             children:[]
+        //         },
+        //         activeData:null,
+        //     },
+        //     methods:{
+        //         insertToList:function(node, object){
+        //             // console.log(node.fullpath, object.fullpath, node.fullpath===object.path);
+        //             node.children = node.children || []; 
+        //             if(node.fullpath === object.path){
+        //                 node.children.push(object);
+        //                 // console.log("push");
+        //             }
+        //             else{
+        //                 node.children.forEach(o=>{
+        //                     this.insertToList(o, object);
+        //                 });
+        //             }
+        //         },
+        //         setData:function(zip){
+        //             // console.log(zip);
+        //             if(zip.mimetype){
+        //                 this.activeData = zip;
+        //             }
+        //             else{
+        //                 this.activeData = null;
+        //             }
+        //         },
+        //         path2Object:function(path, entry){
+        //             var object = {};
+
+        //             //fullpath
+        //             object.fullpath = "/" + path;
+
+        //             //mime-type
+        //             object.mimetype = Hakademy.util.mime2text(path);
+                    
+        //             //type
+        //             var isEndSlash = path.endsWith("/");
+        //             if(isEndSlash){
+        //                 object.type = "directory";
+        //                 path = path.substr(0, path.length - 1);
+        //             }
+        //             else{
+        //                 object.type = "file";
+        //             }
+                    
+        //             //name
+        //             var index = path.lastIndexOf("/");
+        //             if(index < 0){//root
+        //                 object.name = path;
+        //             }
+        //             else{//file
+        //                 object.name = path.substr(index + 1 , path.length);
+        //             }
+
+        //             //path
+        //             if(index < 0){
+        //                 object.path = "/";
+        //             }
+        //             else{
+        //                 object.path = "/" + path.substr(0, path.length - object.name.length);
+        //             }
+
+        //             //depth
+        //             // object.depth = (object.path.match(/\//g) || []).length;
+
+        //             //text
+        //             entry.async("blob").then(content=>{
+        //                 var reader = new FileReader();
+        //                 reader.onload = function(e){
+        //                     object.text = e.target.result;
+        //                 };
+        //                 reader.readAsText(content);
+        //             })
+        //             return object;
+        //         },
+        //     },
+        //     created:function(){
+        //         var vm = this;
+        //         var promise = new JSZip.external.Promise(function (resolve, reject) {
+        //             JSZipUtils.getBinaryContent('./'+filename, function(err, data) {
+        //                 if (err) {
+        //                     reject(err);
+        //                 } else {
+        //                     resolve(data);
+        //                 }
+        //             });
+        //         });
+        //         promise.then(function(data){
+        //             return JSZip.loadAsync(data);
+        //         })
+        //         .then(function(zip){
+        //             zip.forEach(function(path, entry){
+        //                 var object = vm.path2Object(path, entry);
+        //                 vm.insertToList(vm.node, object);
+        //             });
+        //         });
+        //     },
+        // });        
+    </script>
+</body>
+</html>

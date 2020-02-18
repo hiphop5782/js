@@ -35,7 +35,7 @@
 <body>
     <div id="zip-viewer">
         <ul class="path-viewer">
-            <li v-for="(zip, index) in zipList" :key="index" @click="setData(zip)">{{zip.fullpath}}</li>
+            <li v-for="(zip, index) in zipList" :key="index" @click="setData(zip)" :style="{'padding-left':zip.depth*15+'px'}">{{zip.name}}</li>
         </ul>
         <div class="text-viewer">
             <pre v-if="activeData != null" v-text="activeData.text"></pre>
@@ -101,6 +101,9 @@
                     else{
                         object.path = "/" + path.substr(0, path.length - object.name.length);
                     }
+
+                    //depth
+                    object.depth = (object.path.match(/\//g) || []).length;
 
                     //text
                     entry.async("blob").then(content=>{
