@@ -221,11 +221,34 @@
                 transform-origin: bottom;
             }
         }
+
+        .border-spin3{
+            background-color:transparent;
+            border:none;
+            position:relative;
+            padding:1rem;
+            outline: none;
+            /* overflow: hidden; */
+        }
+        .border-spin3::before{
+            content:"";
+            display: block;
+            position:absolute;
+        }
+
+        @keyframes border-spin3{
+            from{
+                transform:rotateZ(0deg);
+            }
+            to{
+                transform:rotateZ(720deg);
+            }
+        }
     </style>
 </head>
 <body>
     <div class="area">
-        <button class="border-spin2">
+        <button class="border-spin">
             <span></span>
             <span></span>
             <span></span>
@@ -240,6 +263,15 @@
             <span></span>
             <span></span>
             테두리 회전 영역
+        </div>
+    </div>
+    <div class="area">
+        <div class="border-spin3">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            4색 테두리 회전
         </div>
     </div>
 </body>
