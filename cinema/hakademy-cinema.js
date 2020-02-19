@@ -18,6 +18,7 @@
         if(!seat_area){
             throw "cinema-seat-area가 존재하지 않습니다";
         }
+        this.seat_area = seat_area;
 
         var rowsize = seat_area.getAttribute("data-rowsize");      
         if(!rowsize){
@@ -62,12 +63,11 @@
             cloneList.push(cloneNode);
             seat_area.removeChild(item);
         }
-
         var seat_unit = cloneList.shift();
         for(var r = 1; r <= rowsize ; r++){
             for(var c = 1; c <= colsize; c++){
                 //배치할 좌석이 없으면 전부 빈칸으로 채움
-                if(!cloneList.length){
+                if(!seat_unit){
                     appendEmptySeat(seat_area, size);
                     continue;
                 }
@@ -97,7 +97,29 @@
                     seat_unit = cloneList.shift();
                 }
             }
+
+            var app = this;
+            w.addEventListener("resize", function(){
+                app.resize();
+            });
         }
+
+        w.Hakademy.Reservation.prototype.resize = function(){
+            var colsize = this.seat_area.getAttribute("data-colsize");
+            var width;
+            try{
+                width = parseInt(window.getComputedStyle(seat_area, null).width);
+            }
+            catch(e){
+                width = parseInt(seat_area.currentStyle.height);
+            }
+            var size = parseInt(width / colsize);
+            var list = this.seat_area.children;
+            for(var i=0; i < list.length; i++){
+                list[i].style.width = size + "px";
+                list[i].style.height = size + "px";
+            }
+        };
 
         //좌석 클릭 이벤트 리스너
         function clickListener(){
