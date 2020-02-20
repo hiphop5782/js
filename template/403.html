@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>CodePen - Pure CSS Gradient Background Animation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel='stylesheet' href='https://codepen.io/P1N2O/pen/xxbjYqx.css'>
+    <style>
+        @-webkit-keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+    
+        @font-face {
+            font-family: melona;
+            src: url("./BinggraeMelona.ttf");
+        }
+        *{
+            box-sizing: border-box;
+            font-family: melona;
+        }
+        html, body{
+            margin:0;
+            padding:0;
+        }
+        body{
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            -webkit-animation: gradient 15s ease infinite;
+                    animation: gradient 15s ease infinite;
+        }
+        .main-text{
+            font-size: 65px;
+            position:fixed;
+            left:50%;
+            top:50%;
+            transform:translate(-50%, -150%);
+            white-space: nowrap;
+            z-index:2;
+            color:white;
+        }
+        .move-link{
+            font-size: 30px;
+            text-decoration: none;
+            color: white;
+            display:block;
+            position:fixed;
+            left:50%;
+            top:50%;
+            transform:translate(-50%, 0%);
+            padding:1rem;
+            border:1px white solid;
+            border-radius: 1rem;
+            z-index:2;
+        }
+        .move-link:hover{
+            color:lightblue;
+            border-color: lightblue;
+            text-decoration: none;
+        }
+        @media screen and (max-width: 768px){
+            .main-text{
+                font-size: 40px;
+            }
+            .main-text > span{
+                text-align: center;
+                display:block;
+                width:100%;
+            }
+            .move-link{
+                font-size: 15px;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="main-text">
+        <span>403</span> 
+        <span>이용 권한이 없습니다</span>
+    </div>
+    <a class="move-link" href="/">홈으로</a>
+
+</body>
+
+</html>
