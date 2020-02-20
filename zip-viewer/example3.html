@@ -11,7 +11,7 @@
             left:0;
             right:50%;
             bottom:0;
-            overflow-y: scroll;
+            overflow-y: auto;
             overflow-x: auto;
         }
         .text-viewer{
@@ -23,56 +23,62 @@
             overflow-y:scroll;
             overflow-x:scroll;
         }
-        .path-viewer > li{
+        .path-viewer li{
             cursor:pointer;
         }
-        .path-viewer > li:hover{
-            background-color:black;
+        .path-viewer li.active{
+            background-color: black;
             color:white;
         }
     </style>
+
+    <!-- item template -->
+    <script type="text/x-template" id="item-template">
+        <li>
+            <div
+                :class="{bold: isFolder}"
+                @click="toggle">
+                {{ item.name }}
+                <span v-if="isFolder">[{{ isOpen ? '-' : '+' }}]</span>
+            </div>
+            <ul v-show="isOpen" v-if="isFolder">
+                <tree-item
+                class="item"
+                v-for="(child, index) in item.children"
+                @click="toggle"
+                :key="index"
+                :item="child"
+                ></tree-item>
+            </ul>
+        </li>
+    </script>
 </head>
 <body>
     <div id="app">
-        <!-- item template -->
-        <script type="text/x-template" id="item-template">
-            <li>
-                <div
-                    :class="{bold: isFolder}"
-                    @click="toggle">
-                    {{ item.name }}
-                    <span v-if="isFolder">[{{ isOpen ? '-' : '+' }}]</span>
-                </div>
-                <ul v-show="isOpen" v-if="isFolder">
-                    <tree-item
+        <div class="path-viewer">
+            <ul id="zip-viewer">
+                <tree-item
+                    v-if="node"
                     class="item"
-                    v-for="(child, index) in item.children"
-                    :key="index"
-                    :item="child"
+                    :item="node"
                     ></tree-item>
-                </ul>
-            </li>
-        </script>
-      
-        <p>(You can double click on an item to turn it into a folder.)</p>
-      
-        <!-- the demo root element -->
-        <ul id="zip-viewer">
-            <tree-item
-                v-if="node"
-                class="item"
-                :item="node"
-                ></tree-item>
-        </ul>
+            </ul>
+        </div>
+        <div class="text-viewer">
+            <pre v-if="active != null" v-text="active.text"></pre>
+        </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="./jszip.js"></script>
-    <script src="./jszip_utils.js"></script>
+    <script src="./js/jszip.js"></script>
+    <script src="./js/jszip_utils.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://unpkg.com/vue"></script>
-    <script src="./mime-converter.js"></script>
+    <script src="./js/mime-converter.js"></script>
     <script>
+        //event bus
+        var EventBus = new Vue();
+
         // define the tree-item component
         Vue.component('tree-item', {
             template: '#item-template',
@@ -86,23 +92,29 @@
             },
             computed: {
                 isFolder: function () {
-                return this.item.children &&
-                    this.item.children.length
+                return this.item.children != null &&
+                    this.item.children.length > 0
                 }
             },
             methods: {
                 toggle: function () {
+                    // console.log("toggle", this.item, this.isFolder);                    
                     if (this.isFolder) {
+                        // console.log("folder");
                         this.isOpen = !this.isOpen
+                        // EventBus.$emit("choice", null);
+                    }
+                    else{
+                        // console.log("file");
+                        EventBus.$emit("choice", this.item);
                     }
                 },
             }
         })
 
-        // boot up the demo
         var url = "./toast.zip";
         var app = new Vue({
-            el: '#zip-viewer',
+            el: '#app',
             data: {
                 node: null,
                 template:{
@@ -114,6 +126,7 @@
                     depth:0,
                     children:[],
                 },
+                active:null,
             },
             methods: {
                 insertToList:function(node, object){
@@ -134,14 +147,10 @@
                         });
                     }
                 },
-                setData:function(zip){
-                    // console.log(zip);
-                    if(zip.mimetype){
-                        this.activeData = zip;
-                    }
-                    else{
-                        this.activeData = null;
-                    }
+                setData:function(item){
+                    // console.log(item);
+                    if(!item.mimetype) return;
+                    this.active = item;
                 },
                 path2Object:function(path, entry){
                     var object = {};
@@ -151,6 +160,7 @@
 
                     //mime-type
                     object.mimetype = Hakademy.util.mime2text(path);
+                    // console.log(object.mimetype);
                     
                     //type
                     var isEndSlash = path.endsWith("/");
@@ -194,6 +204,10 @@
                 },
             },
             created:function(){
+                EventBus.$on("choice", item=>{
+                    this.setData(item);
+                });
+
                 var vm = this;
                 var promise = new JSZip.external.Promise(function (resolve, reject) {
                     JSZipUtils.getBinaryContent(url, function(err, data) {
@@ -215,149 +229,6 @@
                 });
             },
         })
-
-        // var filename = "toast.zip";
-
-        // Vue.component('tree-item', {
-        //     template:"#item-template",
-        //     props:{
-        //         item:Object,
-        //     },
-        //     data:function(){
-        //         return {
-        //             isOpen:false,
-        //         };
-        //     },
-        //     computed:{
-        //         isFolder:function(){
-        //             return this.item.type === "directory";
-        //         }
-        //     },
-        //     methods: {
-        //         toggle: function () {
-        //             if (this.isFolder) {
-        //                 this.isOpen = !this.isOpen
-        //             }
-        //         },
-        //         makeFolder: function () {
-        //             if (!this.isFolder) {
-        //                 this.$emit('make-folder', this.node)
-        //                 this.isOpen = true
-        //             }
-        //         }
-        //     },
-            
-        // });
-
-        // var viewer = new Vue({
-        //     el:"#zip-viewer",
-        //     data:{
-        //         node:{
-        //             name:"root",
-        //             fullpath:"/",
-        //             mimetype:null,
-        //             type:"directory",
-        //             path:"",
-        //             depth:0,
-        //             children:[]
-        //         },
-        //         activeData:null,
-        //     },
-        //     methods:{
-        //         insertToList:function(node, object){
-        //             // console.log(node.fullpath, object.fullpath, node.fullpath===object.path);
-        //             node.children = node.children || []; 
-        //             if(node.fullpath === object.path){
-        //                 node.children.push(object);
-        //                 // console.log("push");
-        //             }
-        //             else{
-        //                 node.children.forEach(o=>{
-        //                     this.insertToList(o, object);
-        //                 });
-        //             }
-        //         },
-        //         setData:function(zip){
-        //             // console.log(zip);
-        //             if(zip.mimetype){
-        //                 this.activeData = zip;
-        //             }
-        //             else{
-        //                 this.activeData = null;
-        //             }
-        //         },
-        //         path2Object:function(path, entry){
-        //             var object = {};
-
-        //             //fullpath
-        //             object.fullpath = "/" + path;
-
-        //             //mime-type
-        //             object.mimetype = Hakademy.util.mime2text(path);
-                    
-        //             //type
-        //             var isEndSlash = path.endsWith("/");
-        //             if(isEndSlash){
-        //                 object.type = "directory";
-        //                 path = path.substr(0, path.length - 1);
-        //             }
-        //             else{
-        //                 object.type = "file";
-        //             }
-                    
-        //             //name
-        //             var index = path.lastIndexOf("/");
-        //             if(index < 0){//root
-        //                 object.name = path;
-        //             }
-        //             else{//file
-        //                 object.name = path.substr(index + 1 , path.length);
-        //             }
-
-        //             //path
-        //             if(index < 0){
-        //                 object.path = "/";
-        //             }
-        //             else{
-        //                 object.path = "/" + path.substr(0, path.length - object.name.length);
-        //             }
-
-        //             //depth
-        //             // object.depth = (object.path.match(/\//g) || []).length;
-
-        //             //text
-        //             entry.async("blob").then(content=>{
-        //                 var reader = new FileReader();
-        //                 reader.onload = function(e){
-        //                     object.text = e.target.result;
-        //                 };
-        //                 reader.readAsText(content);
-        //             })
-        //             return object;
-        //         },
-        //     },
-        //     created:function(){
-        //         var vm = this;
-        //         var promise = new JSZip.external.Promise(function (resolve, reject) {
-        //             JSZipUtils.getBinaryContent('./'+filename, function(err, data) {
-        //                 if (err) {
-        //                     reject(err);
-        //                 } else {
-        //                     resolve(data);
-        //                 }
-        //             });
-        //         });
-        //         promise.then(function(data){
-        //             return JSZip.loadAsync(data);
-        //         })
-        //         .then(function(zip){
-        //             zip.forEach(function(path, entry){
-        //                 var object = vm.path2Object(path, entry);
-        //                 vm.insertToList(vm.node, object);
-        //             });
-        //         });
-        //     },
-        // });        
     </script>
 </body>
 </html>
