@@ -33,6 +33,8 @@
 <body>
     <div class="zip-viewer">
         <div class="information-viewer">
+            <span class="menu" @click="toggleMenu">메</span>
+
             <span class="app-title">
                 <span>Z</span>
                 <span>i</span>
@@ -56,7 +58,7 @@
             </a>
         </div>
         <div class="file-viewer">
-            <div class="path-viewer">
+            <div class="path-viewer" :class="{on:menuVisible}">
                 <ul class="list-viewer">
                     <tree-item v-if="node" class="item" :item="node"></tree-item>
                 </ul>
@@ -126,6 +128,7 @@
                     extension:null,
                 },
                 active:null,
+                menuVisible:true,
             },
             methods: {
                 insertToList:function(node, object){
@@ -217,6 +220,9 @@
                 },
                 download:function(){
                     console.log("download");
+                },
+                toggleMenu:function(){
+                    this.menuVisible = !this.menuVisible;
                 },
             },
             created:function(){
