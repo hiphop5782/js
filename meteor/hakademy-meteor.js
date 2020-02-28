@@ -37,6 +37,39 @@
 
         this.options = Object.assign({}, defaultOptions, options);
 
+        this.refresh();
+    };
+
+    var classArray = [
+        "stars", 
+        "top-center", "center-top","top", "top-left", "left-top", "top-right", "right-top",
+        "center", "left-center", "center-left", "right-center", "center-right", "left", "right",
+        "bottom", "bottom-center", "center-bottom", "left-center", "center-left", "right-center", "center-right",
+        "sunset", "space", "neon", "blue", "dark"        
+    ];
+
+    w.Hakademy.util.meteor.prototype.set = function(k, v){
+        if(typeof k === "object"){
+            this.options = Object.assign({}, this.options, k);
+        }
+        else if(typeof k === "string"){
+            if(v === undefined)
+                return v;
+
+            this.options[k] = v;
+        }
+
+        this.refresh();
+    };
+
+    w.Hakademy.util.meteor.prototype.refresh = function(){
+        for(var i=0; i < this.el.length; i++){
+            this.el[i].innerHTML = "";
+            for(var k=0; k < classArray.length; k++){
+                this.el[i].classList.remove(classArray[k]);
+            }
+        }
+
         if(this.options.text)
             this.setText();
 
@@ -48,9 +81,9 @@
             var span = document.createElement("span");
             
             if(this.options.htmlMode)
-            span.innerHTML = this.options.text;
+                span.innerHTML = this.options.text;
             else
-            span.textContent = this.options.text;
+                span.textContent = this.options.text;
             
             if(this.options.textEffect)
                 span.classList.add(this.options.textEffect);
