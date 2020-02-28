@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="hakademy-meteor.css">
+    <script src="hakademy-meteor.js"></script>
+    <script>
+        window.addEventListener("load", function(){
+            var options = {
+                count:50,
+                text:"Goodbye. See you again",
+                textEffect:"neon",
+            };
+            var div = new Hakademy.util.meteor(".meteor", options);
+        });        
+    </script>
+</head>
+<body>
+    <div class="meteor"></div>
+</body>
+</html>
