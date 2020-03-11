@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .hakademy-typing-component{
+            padding-right:1rem;
+            box-sizing: border-box;
+            background-image: url("./image/text-cursor.png");
+            background-repeat: no-repeat;
+            background-size: 1.5rem 80%;
+            background-position: right;
+        }
+        .hakademy-typing-component.flicker{
+            animation: flicker 1s infinite;
+        }
+        @keyframes flicker {
+            0%, 40%{
+                background-position: 0 -50px;
+            }
+            40.1%, 100%{
+                background-position: right;
+            }
+        }
+    </style>
+    <script>
+        (function(w){
+            w.Hakademy = w.Hakademy || {};
+            w.Hakademy.util = w.Hakademy.util || {};
+            w.Hakademy.util.typing = function(el, options){
+                this.el = el;
+                if(!this.el)
+                    throw "Hakademy.util.typo : 대상이 존재하지 않습니다";
+
+                var defaultOptions = {
+                    text:[
+                        "타이핑 효과를 내는",
+                        "Typing Effect",
+                        "텍스트가 계속 교체되는",
+                        "www.sysout.co.kr에서 배포하는",
+                        "오픈소스로 개발된"
+                    ],
+                    appear:{
+                        startDelay:0,
+                        processDelay:0.1,
+                        finishDelay:2,
+                    },
+                    exit:{
+                        startDelay:1,
+                        processDelay:0.1,
+                        finishDelay:1,
+                    },
+                    cycle:"infinite",
+                    cursor:{
+                        flicker:true,
+                    }
+                };
+
+                this.options = Object.assign({}, defaultOptions, options);
+                this.options.text = this.options.text || this.el.textContent.split(/\s*\n\s*/g);
+                this.el.textContent = "";
+
+                this.design();
+
+                this.animateBlocking();
+            };
+
+            w.Hakademy.util.typing.prototype.design = function(){
+                this.el.classList.add("hakademy-typing-component");
+            };
+
+            w.Hakademy.util.typing.prototype.animateBlocking = function(){
+                var cycle = this.options.cycle;
+                this.animateWordBlocking(0, cycle);
+            };
+
+            w.Hakademy.util.typing.prototype.animateWordBlocking = function(index, cycle){
+                if(typeof cycle === "number" && cycle <= 0)
+                    return false;
+
+                if(!index) 
+                    index = 0;
+                
+                var app = this;
+                var isArray = Array.isArray(this.options.text);
+                
+                if(cycle === "infinite" && isArray)
+                    index %= this.options.text.length;
+
+                var word = isArray ? this.options.text[index] : this.options.text;
+                cycle = typeof cycle === "number" && isArray && index === this.options.text.length - 1 ? cycle - 1 : cycle;
+                var loc = 0;                
+
+                function ap(){
+                    if(app.options.cursor.flicker){
+                        app.el.classList.remove("flicker");
+                    }
+
+                    app.appearOnce(word[loc++]);
+                    if(loc < word.length){
+                        setTimeout(ap, parseInt(app.options.appear.processDelay * 1000))
+                    }
+                    else{
+                        if(app.options.cursor.flicker){
+                            app.el.classList.add("flicker");
+                        }
+                        setTimeout(rp, parseInt(app.options.appear.finishDelay + app.options.exit.startDelay) * 1000);
+                    }
+                };
+                function rp(){
+                    if(app.options.cursor.flicker){
+                        app.el.classList.remove("flicker");
+                    }
+                    app.removeOnce();
+                    if(app.el.textContent){
+                        setTimeout(rp, parseInt(app.options.exit.processDelay * 1000));
+                    }
+                    else{
+                        if(app.options.cursor.flicker){
+                            app.el.classList.add("flicker");
+                        }
+                        setTimeout(function(){
+                            app.animateWordBlocking(index + 1, cycle);
+                        }, parseInt(delay * 1000));
+                    }
+                };
+                
+                var delay = index ? this.options.appear.startDelay + this.options.exit.finishDelay : this.options.appear.startDelay;
+                setTimeout(ap, parseInt(delay * 1000));
+            };
+
+            w.Hakademy.util.typing.prototype.appearOnce = function(v){
+                this.el.textContent += v;
+            };
+            w.Hakademy.util.typing.prototype.removeOnce = function(){
+                this.el.textContent = this.el.textContent.substring(0, this.el.textContent.length - 1);
+            };
+        })(window);
+    </script>
+    <script>
+        window.addEventListener("load", function(){
+            var a = new Hakademy.util.typing(document.querySelector(".typing-text"));
+            var a = new Hakademy.util.typing(document.querySelector(".typing-text2"), {
+                cursor:{
+                    flicker:false,
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>데모</h1>
+    이것은 <span class="typing-text"></span> 라이브러리 입니다.
+    <hr>
+    이것은 <span class="typing-text2"></span> 라이브러리 입니다.
+</body>
+</html>
