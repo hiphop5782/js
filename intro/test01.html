@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .text-cursor{
+            border-right: 1px solid black;
+            padding-right:0.1rem;
+        }
+    </style>
+    <script>
+        window.addEventListener("load", function(){
+            //typo-text
+            function appendTypoText(tag, text, delay, willRemove, willRemoveDelay, callback){
+                tag.textContent = "";
+                var index = 0;
+                var append = function(){
+                    tag.textContent += text[index++];
+                    if(index < text.length){
+                        setTimeout(append, parseInt(delay * 1000));
+                    }
+                    else if(willRemove){
+                        setTimeout(function(){
+                            removeTypoText(tag, delay, callback);
+                        }, willRemoveDelay * 1000);
+                    }
+                    else{
+                        if(typeof callback === "function")
+                            callback();
+                    }
+                };
+                append();
+            }
+            
+
+            function removeTypoText(tag, delay, callback){
+                var remove = function(){
+                    var text = tag.textContent;
+                    if(text){
+                        text = text.substr(0, text.length - 1);
+                        tag.textContent = text;
+                        if(text){
+                            setTimeout(remove, parseInt(delay * 1000));
+                        }
+                        else{
+                            if(typeof callback === "function")
+                                callback();
+                        }
+                    }
+                };
+                remove();
+            }
+            removeTypoText(document.querySelector(".remove-text"), 1);
+
+            function appendAndRemoveTypoText(tag, text, delay, removeDelay, callback, infinite){
+                if(Array.isArray(text)){
+                    var i = 0;
+                    var proc = function(){
+                        setTimeout(function(){
+                            i++;
+                            if(infinite){
+                                i %= text.length;    
+                            }
+                            if(i < text.length){
+                                appendTypoText(tag, text[i], delay, true, removeDelay, proc);
+                            }
+                        }, delay);
+                    };
+                    appendTypoText(tag, text[i], delay, true, removeDelay, proc);
+                    if(callback && typeof callback === "function") 
+                        callback(tag, text, delay);
+                }
+                else{
+                    appendTypoText(tag, text, delay, true, removeDelay);
+                    if(callback && typeof callback === "function") 
+                        callback(tag, text, delay);
+                }
+            }
+
+            // appendAndRemoveTypoText(document.querySelector(".typo-text"), "hello", 0.1, 2, function(){
+            //     console.log("finish");
+            // });
+
+            appendAndRemoveTypoText(document.querySelector(".typo-text"), 
+            ["Genius", "Intelligent", "Handsome", "Cool", "Sweet"], 
+            0.1, 2, function(){
+                console.log("finish");
+            }, true);
+        });
+    </script>
+</head>
+<body>
+    <span class="typo-text text-cursor">OOOO</span> 
+    <hr>
+    <span class="remove-text text-cursor">OOO</span>
+</body>
+</html>
