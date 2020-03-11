@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/hiphop5782/js@latest/meteor/hakademy-meteor.css">
+    <script src="https://cdn.jsdelivr.net/gh/hiphop5782/js@latest/meteor/hakademy-meteor.js"></script>
+    
+    <style>
+        @keyframes bling{
+            0%{opacity:0}
+            25%{opacity:0.7}
+            50%{opacity:1}
+            75%{opacity:0.7}
+            100%{opacity:0}
+        }
+        .meteor-wrap > .static-star{
+            width:1px;
+            height:1px;
+            border-radius: 50%;
+            position:absolute;
+            background-color: white;
+            filter: blur(1px);
+            -webkit-filter: blur(1px);
+            animation:bling;
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite;
+            opacity:0;
+        }
+        .meteor-wrap > .static-star::after{
+            content:"";
+            position:absolute;
+            width:3px;
+            height:1px;
+            background-color: white;
+            top:50%;
+            left:0;
+            transform: translate(-50%);
+            animation:bling;
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite;
+        }
+        .meteor-wrap > .static-star::before{
+            content:"";
+            position:absolute;
+            height:3px;
+            width:1px;
+            background-color: white;
+            top:0;
+            left:0;
+            transform: translateY(-50%);
+            animation:bling;
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite;
+        }
+    </style>
+
+    <script>
+        window.addEventListener("load", function(){
+            var div = new Hakademy.util.meteor(".meteor-wrap");
+
+            for(var i=0; i < 50; i++){                
+                var static_star = document.createElement("div");
+
+                var st = window.getComputedStyle(div.el[0]);
+                var left = Math.floor(Math.random() * parseInt(st.width));
+                var top = Math.floor(Math.random() * parseInt(st.height));
+                var delay = Math.floor(Math.random() * 5);
+                var duration = Math.floor(Math.random() * 20) + 10;
+
+                static_star.classList.add("static-star");
+                static_star.style.top = top + "px";
+                static_star.style.left = left + "px";
+                static_star.style.animationDelay = delay+"s";
+                static_star.style.animationDuration = duration+"s";
+
+                div.el[0].appendChild(static_star);
+            }
+        });        
+    </script>
+</head>
+<body>
+    <div class="meteor-wrap"></div>
+</body>
+</html>

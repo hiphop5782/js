@@ -1,14 +1,41 @@
+@font-face{
+    font-family:binggrae;
+    src:url("http://www.sysout.co.kr/home/font/Binggrae.ttf");
+}
+html, body{
+	margin:0;
+	padding:0;
+	height:100%;
+}
+*{
+	box-sizing:border-box;
+	font-family:binggrae;
+}
 .zip-viewer{
     box-sizing: border-box;
     width:100%;
-    height:400px;
+    min-height:500px;
     border:1px solid black;
     display:flex;
     flex-direction: column;
+    overflow: hidden;
 }
 .zip-viewer > .information-viewer{
     padding:0.5rem;
     border-bottom: 1px solid black;
+}
+.zip-viewer > .information-viewer > .menu{
+    cursor:pointer;
+}
+.zip-viewer > .information-viewer > .menu:hover{
+    color:blue;
+}
+.zip-viewer > .information-viewer a{
+	text-decoration: none;
+	color:black;
+}
+.zip-viewer > .information-viewer a:hover{
+	color:red;
 }
 .zip-viewer > .information-viewer > .app-title > span:nth-child(1){
     color:red;
@@ -56,17 +83,27 @@
     padding:1rem;
     white-space: pre;
     font-size: 0.8rem;
-    line-height:1.5rem;
+    line-height:1.35rem;
+    font-family:binggrae;
 }
 .zip-viewer > .file-viewer > .text-viewer .hljs {
     display: inline-block;
     -webkit-text-size-adjust: none;
 }
 .zip-viewer > .file-viewer > .path-viewer{
-    width:150px;
+    width:200px;
     overflow: auto;
     overflow: auto;
+    margin-left: -200px;
+    transition:margin-left 0.5s ease-in-out;
 }
+.zip-viewer > .file-viewer > .path-viewer.on{
+    margin-left:0;
+}
+.zip-viewer > .file-viewer > .path-viewer.on + .text-viewer{
+    width:100%;
+}
+
 .zip-viewer > .file-viewer > .path-viewer li{
     cursor:pointer;
 }
@@ -76,19 +113,122 @@
 }
 .zip-viewer > .file-viewer > .path-viewer > .list-viewer, .list-viewer ul{
     list-style: none;
-    padding-left: 5px;
+    padding-left: 1rem;
     font-size: 0.75rem;
 }
+.zip-viewer > .file-viewer > .path-viewer > .list-viewer li, 
 .zip-viewer > .file-viewer > .path-viewer > .list-viewer li > div{
-    padding-left: 0.75rem;
+    position: relative;
+}
+
+.zip-viewer > .file-viewer > .path-viewer > .list-viewer li > div{
+    padding:0.15rem;
+    padding-left: 1rem;
     white-space: nowrap;
-    background-position: 0rem 0.1rem;
+    background-position: 0rem 0.25rem;
     background-size: 0.75rem 0.75rem;
     background-repeat: no-repeat;
+    text-overflow:ellipsis;
+    overflow:hidden;
+}
+.zip-viewer > .file-viewer > .path-viewer > .list-viewer li > div::before,
+.zip-viewer > .file-viewer > .path-viewer > .list-viewer li > div::after{
+    content:"";
+    position:absolute;
+    display: block;
+    left:0.25rem;
+    width:0.5rem;
+    z-index:-1;
+}
+.zip-viewer > .file-viewer > .path-viewer > .list-viewer li > div::before{
+    /* background-color: green; */
+    top:0;
+    bottom:50%;
+    border-left:1px solid #CCC;
+}
+.zip-viewer > .file-viewer > .path-viewer > .list-viewer li > div::after{
+    /* background-color:yellow; */
+    top:50%;
+    bottom:0;
+    border-left:1px solid #CCC;
+    border-top: 1px solid #CCC;
+}
+.zip-viewer > .file-viewer > .path-viewer > .list-viewer li.open:not(:last-child)::before{
+    content:"";
+    position:absolute;
+    display: block;
+    left:0.25rem;
+    width:0.5rem;
+    top:0;
+    bottom:0;
+    border-left:1px solid #CCC;
+}
+.zip-viewer > .file-viewer > .path-viewer > .list-viewer li:last-child > div::after{
+    border-left: none;
 }
 .zip-viewer > .file-viewer > .path-viewer > .list-viewer li > .directory{
-    background-image:url("../image/folder_close.png");
+    background-image:url("../image/icons-folder-brown.png");
 }
 .zip-viewer > .file-viewer > .path-viewer > .list-viewer li > .directory.open{
-    background-image: url("../image/folder_open.png");
-}     
+    background-image: url("../image/icons-folder-brown.png");
+    color:#CCC;
+}
+.zip-viewer > .file-viewer > .path-viewer > .list-viewer > li > .directory::before{
+    border:none;
+}
+@media screen and (max-width:960px){
+	.zip-viewer{
+		min-height:400px;
+	}
+	.zip-viewer > .information-viewer{
+		font-size:0.75rem;
+	}
+	.zip-viewer > .file-viewer > .text-viewer pre,
+	.zip-viewer > .file-viewer > .text-viewer pre code{
+		font-size:0.7rem;
+		padding:0.75rem;
+	}
+	.zip-viewer > .file-viewer > .path-viewer{
+        width:125px;
+        margin-left: -125px;
+		font-size:0.75rem;
+	}
+}
+@media screen and (max-width:768px){
+	.zip-viewer{
+		min-height:300px;
+	}
+	.zip-viewer > .information-viewer{
+		font-size:0.65rem;
+	}
+	.zip-viewer > .file-viewer > .text-viewer pre,
+	.zip-viewer > .file-viewer > .text-viewer pre code{
+		font-size:0.6rem;
+		padding:0.5rem;
+	}
+	.zip-viewer > .file-viewer > .path-viewer{
+        width:100px;
+        margin-left: -100px;
+		font-size:0.65rem;
+	}
+}
+
+/* custom scrollbar style */
+::-webkit-scrollbar{
+	width:3px;
+	height:5px;
+}
+::-webkit-scrollbar-track{
+	background-color: white;
+	box-shadow: 1px;
+}
+::-webkit-scrollbar-thumb{
+	background-color:gray;
+}
+::-webkit-scrollbar-thumb:hover{
+	background-color:black;
+}
+
+.fullscreen{
+	height:100vh;
+}

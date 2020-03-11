@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>stars</title>
+    <style>
+        @-webkit-keyframes star-opacity {
+            0% {
+                opacity: 0
+            }
+            40% {
+                opacity: 1
+            }
+            60% {
+                opacity: 1
+            }
+            100% {
+                opacity: 0
+            }
+        }
+        @keyframes star-opacity {
+            0% {
+                opacity: 0
+            }
+            40% {
+                opacity: 1
+            }
+            60% {
+                opacity: 1
+            }
+            100% {
+                opacity: 0
+            }
+        }
+        @-webkit-keyframes star-pos {
+            0% {
+                transform: scale(0) rotate(0) translate3d(0, 0, 0);
+                -webkit-transform: scale(0) rotate(0) translate3d(0, 0, 0);
+                -moz-transform: scale(0) rotate(0) translate3d(0, 0, 0)
+            }
+            100% {
+                transform: scale(1) rotate(0) translate3d(-450px, 450px, 0);
+                -webkit-transform: scale(1) rotate(0) translate3d(-450px, 450px, 0);
+                -moz-transform: scale(1) rotate(0) translate3d(-450px, 450px, 0)
+            }
+        }
+        @keyframes star-pos {
+            0% {
+                transform: scale(0) rotate(0) translate3d(0, 0, 0);
+                -webkit-transform: scale(0) rotate(0) translate3d(0, 0, 0);
+                -moz-transform: scale(0) rotate(0) translate3d(0, 0, 0)
+            }
+            100% {
+                transform: scale(1) rotate(0) translate3d(-450px, 450px, 0);
+                -webkit-transform: scale(1) rotate(0) translate3d(-450px, 450px, 0);
+                -moz-transform: scale(1) rotate(0) translate3d(-450px, 450px, 0)
+            }
+        }
+        @keyframes neon{
+            0%{
+                text-shadow: 3px 3px 20px #ff99cc, -2px 1px 30px #ff99cc;
+            }
+            25%{
+                text-shadow: 3px 3px 20px #f5d300, -2px 1px 30px #f5d300;
+            }
+            50%{
+                text-shadow: 3px 3px 20px #09fbd3, -2px 1px 30px #09fbd3;
+            }
+            75%{
+                text-shadow: 3px 3px 20px #08f7fe, -2px 1px 30px #08f7fe;
+            }
+            100%{
+                text-shadow: 3px 3px 20px #ff99cc, -2px 1px 30px #ff99cc;
+            }
+        }
+        .stars{
+            box-sizing: border-box;
+            width:100%;
+            height:300px;
+            background: linear-gradient(-225deg, #473B7B 0%, #3584A7 51%, #30D2BE 100%);
+            overflow: hidden;
+            text-align: center;
+            font-size: 2.5rem;
+            font-family: binggrae;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            padding-top:1.5rem;
+            color: #FFFFFF;
+            text-shadow: 3px 3px 20px #ff99cc, -2px 1px 30px #ff99cc;
+            animation: neon 5s ease-in-out infinite;
+        }
+        @media screen and (max-width:768px){
+            .stars{
+                font-size: 2rem;
+            }
+        }
+        @media screen and (max-width:480px){
+            .stars{
+                font-size: 1.4rem;
+            }
+        }
+        .stars > .star {
+            display: block;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #fff;
+            position: relative;
+            -webkit-transform-origin: 100% 0;
+            transform-origin: 100% 0;
+            -webkit-animation: star-opacity 5s infinite ease-in, star-pos 5s infinite ease-in;
+            animation: star-opacity 5s infinite ease-in, star-pos 5s infinite ease-in;
+            -webkit-box-shadow: 0 0 5px 5px rgba(255, 255, 255, .3);
+            box-shadow: 0 0 5px 5px rgba(255, 255, 255, .3);
+            opacity: 0;
+            z-index: 2;
+        }
+        .stars > .star:after {
+            content: '';
+            display: block;
+            top: 0;
+            left: 4px;
+            border: 0 solid #fff;
+            border-width: 0 90px 7px;
+            border-color: transparent transparent transparent rgba(255, 255, 255, .3);
+            -webkit-transform: rotate(-45deg) translate3d(7px, 3px, 0);
+            transform: rotate(-45deg) translate3d(7px, 3px, 0);
+            -webkit-box-shadow: 0 0 1px 0 rgba(255, 255, 255, .1);
+            box-shadow: 0 0 1px 0 rgba(255, 255, 255, .1);
+            -webkit-transform-origin: 0% 100%;
+            transform-origin: 0% 100%
+        }
+    </style>
+
+    <script>
+        (function(w){
+            w.Hakademy = w.Hakademy || {};
+            w.Hakademy.util = w.Hakademy.util || {};
+            w.Hakademy.util.meteor = function(el, options){
+                this.el = document.querySelectorAll(el);
+                if(!this.el.length)
+                    throw "Meteor : 적용 대상이 없습니다";
+
+                var defaultOptions = {
+                    count:10,
+                    minDelay:0,
+                    maxDelay:5,
+                    minDuration:3,
+                    maxDuration:10,
+                };
+
+                this.options = Object.assign({}, defaultOptions, options);
+
+                this.createStar();
+            };
+
+            w.Hakademy.util.meteor.prototype.createStar = function(){
+                var app = this;
+                this.el.forEach(function(e){
+                    if(!e.classList.contains("stars"))
+                        e.classList.add("stars");
+                    
+                    e.textContent = app.options.text;
+
+                    var st = window.getComputedStyle(e);
+                    var w = Math.max(e.offsetWidth, parseInt(st.width));
+                    var h = Math.max(e.offsetHeight, parseInt(st.height));
+                    for(var i=0; i < app.options.count; i++){
+                        var top = parseInt(Math.random() * h * 80 / 100 - h * 20 / 100);
+                        var left = parseInt(Math.random() * w * 80 / 100 + w * 20 / 100);
+                        var delay = Math.random() * (app.options.maxDelay - app.options.minDelay + 1) + app.options.minDelay;
+                        var duration = Math.random() * (app.options.maxDuration - app.options.minDuration + 1) + app.options.minDuration;
+                        var star = document.createElement("div");
+                        star.classList.add("star");
+                        star.style.top = top+"px";
+                        star.style.left = left+"px";
+                        star.style.animationDelay = delay+"s";
+                        star.style.animationDuration = duration+"s";
+                        e.appendChild(star);
+                    }
+                });
+            };
+        })(window);        
+    </script>
+    <script>
+        window.addEventListener("load", function(){
+            var options = {
+                count:30,
+                text:"Welcome to H'academy"
+            };
+            var div = new Hakademy.util.meteor('.stars', options);
+        });        
+    </script>
+</head>
+
+<body>
+    <div class="index-bg">
+        <div class="stars">
+        </div>
+    </div>
+</body>
+
+</html>

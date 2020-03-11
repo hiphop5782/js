@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/hiphop5782/js@latest/meteor/hakademy-meteor.css">
+    <script src="https://cdn.jsdelivr.net/gh/hiphop5782/js@latest/meteor/hakademy-meteor.js"></script>
+
+    <script src="https://code.jquery.com/jquery-latest.js"></script>
+    <script>
+        window.addEventListener("load", function(){
+            var options = {
+                text:"Meteor Effect",
+                textEffect:"neon",
+                position:"top",
+            };
+            var div = new Hakademy.util.meteor(".meteor", options);
+
+            $("input:not([type=checkbox])").on("input", function(){
+                changeOptions($(this).attr("name"), $(this).val());
+            });
+            $("input[type=checkbox]").change(function(){
+                if($(this).prop("checked"))
+                    changeOptions($(this).attr("name"), $(this).val());
+                else
+                    changeOptions($(this).attr("name"), null);
+            });
+
+            optionDisplay();
+
+            function changeOptions(k, v){
+                div.set(k, v);
+                
+                optionDisplay();
+            };
+            function optionDisplay(){
+                var line = "<ul>";
+                for(var i in div.options){
+                    var str = "[" + i + "] : " + div.options[i];
+                    line += "<li>";
+                    line += str;
+                    line += "</li>";
+                }
+                line += "</ul>";
+                $(".option-display").html(line);
+            };            
+        });        
+    </script>
+</head>
+<body>
+    <div class="meteor"></div>
+    <hr>
+    <h6>change options</h6>
+    text : <input type="text" name="text" value="Meteor Effect">
+    <input type="checkbox" name="textEffect" value="neon" checked> neon
+    <br>
+    starCount : <input type="number" name="starCount" value="30">
+    <br>
+    position : <br>
+    <input type="radio" name="textPosition" value="top-left"> top-left
+    <input type="radio" name="textPosition" value="top" checked> top
+    <input type="radio" name="textPosition" value="top-right"> top-right
+    <br>
+    <input type="radio" name="textPosition" value="center-left"> center-left
+    <input type="radio" name="textPosition" value="center"> center
+    <input type="radio" name="textPosition" value="center-right"> center-right
+    <br>
+    <input type="radio" name="textPosition" value="bottom-left"> bottom-left
+    <input type="radio" name="textPosition" value="bottom"> bottom
+    <input type="radio" name="textPosition" value="bottom-right"> bottom-right
+    <br>
+    backgroundStyle:
+    <input type="radio" name="backgroundStyle" value="blue" checked>blue
+    <input type="radio" name="backgroundStyle" value="dark">dark
+    <input type="radio" name="backgroundStyle" value="space">space
+    <input type="radio" name="backgroundStyle" value="sunset">sunset
+    <hr>
+    <h6>current options</h6>
+    <div class="option-display"></div>
+</body>
+</html>
