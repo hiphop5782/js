@@ -6,8 +6,10 @@
     <title>Document</title>
     <style>
         .hakademy-typing-component{
-            padding-right:1rem;
             box-sizing: border-box;
+        }
+        .hakademy-typing-component.hakademy-text-cursor{
+            padding-right:1rem;
             background-image: url("./image/text-cursor.png");
             background-repeat: no-repeat;
             background-size: 1.5rem 80%;
@@ -54,12 +56,13 @@
                     },
                     cycle:"infinite",
                     cursor:{
+                        display:true,
                         flicker:true,
                     }
                 };
 
-                this.options = Object.assign({}, defaultOptions, options);
-                this.options.text = this.options.text || this.el.textContent.split(/\s*\n\s*/g);
+                this.setOption(defaultOptions, options);
+                
                 this.el.textContent = "";
 
                 this.design();
@@ -67,8 +70,39 @@
                 this.animateBlocking();
             };
 
+            w.Hakademy.util.typing.prototype.setOption = function(defaultOptions, options){
+                options = options || {};
+
+                this.options = {};
+                for(var i in defaultOptions){
+                    if(Array.isArray(defaultOptions[i])){//배열
+                        if(!options[i]){
+                            this.options[i] = defaultOptions[i];
+                        }
+                        else{
+                            this.options[i] = defaultOptions[i].concat(options[i]);
+                        }
+                    }
+                    else if(typeof defaultOptions[i] === "object"){//객체
+                        if(!options[i]){
+                            this.options[i] = Object.assign({}, defaultOptions[i], {});
+                        }
+                        else{
+                            this.options[i] = Object.assign({}, defaultOptions[i], options[i]);
+                        }
+                    }
+                    else{//기타
+                        this.options[i] = options[i] || defaultOptions[i];
+                    }
+                }
+                this.options.text = this.options.text || this.el.textContent.split(/\s*\n\s*/g);
+            };
+
             w.Hakademy.util.typing.prototype.design = function(){
                 this.el.classList.add("hakademy-typing-component");
+                if(this.options.cursor.display){
+                    this.el.classList.add("hakademy-text-cursor");
+                }
             };
 
             w.Hakademy.util.typing.prototype.animateBlocking = function(){
@@ -91,8 +125,8 @@
 
                 var word = isArray ? this.options.text[index] : this.options.text;
                 cycle = typeof cycle === "number" && isArray && index === this.options.text.length - 1 ? cycle - 1 : cycle;
-                var loc = 0;                
-
+                var loc = 0;             
+                
                 function ap(){
                     if(app.options.cursor.flicker){
                         app.el.classList.remove("flicker");

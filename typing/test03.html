@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="./hakademy-typing.css">
+    <script src="./hakademy-typing.js"></script>
+    <script>
+        window.addEventListener("load", function(){
+            var tag = document.querySelector(".typing");
+            var app = new Hakademy.util.typing(tag, {
+                color:{
+                    apply:true
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Hakademy-Typing</h1> 
+    이것은 <span class="typing"></span> 라이브러리 입니다.
+</body>
+</html>
