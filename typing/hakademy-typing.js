@@ -8,11 +8,7 @@
 
         var defaultOptions = {
             text:[
-                "타이핑 효과를 내는",
-                "Typing Effect",
-                "텍스트 여러개를 교체하여 사용할 수 있는",
-                "www.sysout.co.kr에서 배포하는",
-                "오픈소스로 개발된"
+                "Javascript Typing Effect"
             ],
             appear:{
                 startDelay:0,
