@@ -12,7 +12,7 @@
     animation: flicker 1s infinite;
 }
 @keyframes flicker {
-    0%, 40%{
+    0%, 40%{ 
         background-position: 0 -50px;
     }
     40.1%, 100%{
