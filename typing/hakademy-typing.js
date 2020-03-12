@@ -55,12 +55,7 @@
         this.options = {};
         for(var i in defaultOptions){
             if(Array.isArray(defaultOptions[i])){//배열
-                if(!options[i]){
-                    this.options[i] = defaultOptions[i];
-                }
-                else{
-                    this.options[i] = defaultOptions[i].concat(options[i]);
-                }
+                this.options[i] = !options[i] ? defaultOptions[i] : options[i];
             }
             else if(typeof defaultOptions[i] === "object"){//객체
                 if(!options[i]){
@@ -74,7 +69,6 @@
                 this.options[i] = options[i] || defaultOptions[i];
             }
         }
-        this.options.text = this.options.text || this.el.textContent.split(/\s*\n\s*/g);
     };
 
     w.Hakademy.util.typing.prototype.design = function(){
