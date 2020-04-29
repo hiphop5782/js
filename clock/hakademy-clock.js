@@ -12,6 +12,9 @@ w.Hakademy.util.clock = function(selector, options){
         throw "대상이 없습니다";
     }
 
+    this.inner = document.createElement("div");
+    this.el.appendChild(this.inner);
+
     //옵션 설정
     var defaultOption = {
         backgroundColor:"rgba(0,0,0,0.5)",
@@ -19,6 +22,8 @@ w.Hakademy.util.clock = function(selector, options){
         fontFamily:null,
         fontSize:50,
         border:null,
+        padding:10,
+        display:"block",
 
         type:"timer",
         hour:0,
@@ -74,28 +79,28 @@ w.Hakademy.util.clock = function(selector, options){
 
 //디자인 생성
 w.Hakademy.util.clock.prototype.createDesign = function(){
-    var padding = 10;
     this.el.style.position = "relative";
-    this.el.style.padding = padding + "px";
-    this.el.style.display = "flex";
-    this.el.style.flexWrap = "no-wrap";
+    this.el.style.display = this.options.display === "inline" ? "inline-block" : "block"; 
+    this.el.style.padding = this.options.padding + "px";
     this.el.style.boxSizing = "border-box";
     this.el.style.backgroundColor = this.options.backgroundColor;
     this.el.style.color = this.options.textColor;
     this.el.style.fontSize = this.options.fontSize + "px";
     this.el.style.textAlign = "center";
     this.el.style.overflow = "hidden";
+    this.inner.style.display = "flex";
+    this.inner.style.flexWrap = "no-wrap";
 
     if(this.options.border){
         this.el.style.border = this.options.border;
     }
 
     if(this.options.isBorderRounded){
-        this.el.style.borderRadius = this.el.offsetHeight / 5 + "px";
+        this.inner.style.borderRadius = this.el.offsetHeight / 5 + "px";
     }
 
     if(this.options.fontFamily){
-        this.el.style.fontFamily = this.options.fontFamily;
+        this.inner.style.fontFamily = this.options.fontFamily;
     }
 
 };
@@ -104,20 +109,20 @@ w.Hakademy.util.clock.prototype.createDesign = function(){
 w.Hakademy.util.clock.prototype.createInside = function(){
     if(this.options.type === "clock" || this.options.hourVisible){
         this.hour = new Unit(0, 2);
-        this.el.appendChild(this.hour.el);
-        this.el.appendChild(new Splitter().el);
+        this.inner.appendChild(this.hour.el);
+        this.inner.appendChild(new Splitter().el);
     }
 
     this.minute = new Unit(0, 2);
-    this.el.appendChild(this.minute.el);
+    this.inner.appendChild(this.minute.el);
     this.second = new Unit(0, 2);
-    this.el.appendChild(new Splitter().el);
-    this.el.appendChild(this.second.el);
+    this.inner.appendChild(new Splitter().el);
+    this.inner.appendChild(this.second.el);
 
     if(this.options.msVisible){
-        this.el.appendChild(new Splitter(".").el);
+        this.inner.appendChild(new Splitter(".").el);
         this.millis = new Unit(0, 2);
-        this.el.appendChild(this.millis.el)
+        this.inner.appendChild(this.millis.el)
     }
 };
 
