@@ -43,7 +43,7 @@
             width = parseInt(window.getComputedStyle(seat_area, null).width);
         }
         catch(e){
-            width = parseInt(seat_area.currentStyle.height);
+            width = parseInt(seat_area.currentStyle.width);
         }
 
         this.width = function(){

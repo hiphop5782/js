@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>영화관 좌석 배치</title>
+    <link rel="stylesheet" type="text/css" href="./Hakademy-cinema.css">
+    <script>
+        (function(w){
+            w.Hacademy = w.Hacademy || {};
+            w.Hacademy.util = w.Hacademy.util || {};
+            
+            //좌석 선택 이벤트 핸들러
+            function SeatClickHandler(){
+                var checkbox = this.querySelector("input[type=checkbox]");
+                if(checkbox.checked){
+                    checkbox.checked = false;
+                    this.classList.remove("active");
+                }
+                else{
+                    checkbox.checked = true;
+                    this.classList.add("active");
+                }
+            }
+
+            w.Hacademy.Reservation = function(area, callback){
+                if(!area) 
+                    throw "영역이 정의되지 않았습니다";
+
+                if(typeof area === 'string')
+                    area = document.querySelector(area);
+
+                var seatArea = area.querySelector(".cinema-seat-area");
+                if(!seatArea){
+                    throw "좌석 영역이 지정되지 않았습니다(class='cinema-seat-area')";
+                }
+
+                var rowsize = seatArea.dataset.rowsize;
+                if(!rowsize){
+                    throw "줄의 크기를 올바르게 설정하십시오";
+                }
+                var colsize = seatArea.dataset.colsize;
+                if(!colsize){
+                    throw "칸의 크기를 올바르게 설정하십시오";
+                }
+
+                //좌석 영역 폭 계산
+                var seatAreaWidth;
+                try{
+                    seatAreaWidth = parseInt(window.getComputedStyle(seatArea, null).width);
+                    console.log("computed", seatAreaWidth);
+                }
+                catch(e){
+                    seatAreaWidth = parseInt(seatArea.currentStyle.width);
+                    console.log("current");
+                }
+
+                //좌석 크기 계산(좌석은 무조건 정사각형)
+                var unitSize = seatAreaWidth / colsize;
+
+                //좌석 배치 방법은 2가지
+                //data-mode="auto" : 자동으로 빈좌석을 채움(기본값)
+                //data-mode="manual" : 수동으로 좌석을 채움
+                var mode = seatArea.dataset.mode || 'auto';
+
+                //전송 이름(없으면 seat으로 설정)
+                var sendName = area.dataset.name || 'seat';
+
+                this.options = {
+                    area:area,
+                    seatArea:seatArea,
+                    rowsize:rowsize,
+                    colsize:colsize,
+                    seatAreaWidth:seatAreaWidth,
+                    unitSize:unitSize,
+                    mode:mode,
+                    sendName:sendName
+                };
+
+                if(mode === 'auto'){
+                    this.automaticFillProcess();
+                }
+                else{
+                    this.manualFillProcess();
+                }
+            };
+
+            w.Hacademy.Reservation.prototype.automaticFillProcess = function(){
+                console.log(this.options);
+                for(var i=0; i < this.options.rowsize; i++){
+                    for(var j=0; j < this.options.colsize; j++){
+                        var value = i + "-" + j;
+                        var seat = this.createUnit("normal");
+                        seat.setValue(value);
+                        this.options.seatArea.appendChild(seat);
+                    }
+                }
+            };
+            w.Hacademy.Reservation.prototype.manualFillProcess = function(){
+                
+            };
+            w.Hacademy.Reservation.prototype.createUnit = function(v){
+                if(v === 'empty'){
+                    var seat = this.createUnit();
+                    seat.classList.add("empty");
+                    return seat;
+                }
+                else if(v === 'active'){
+                    var seat = this.createUnit();
+                    var checkbox = this.createCheckbox(true);
+                    seat.appendChild(checkbox);
+                    seat.classList.add("active");
+                    seat.addEventListener("click", SeatClickHandler);
+                    seat.setValue = function(value){
+                        var checkbox = this.querySelector("input[type=checkbox]");
+                        checkbox.value = value;
+                    };
+                    return seat;
+                }
+                else if(v === 'normal'){
+                    var seat = this.createUnit();
+                    var checkbox = this.createCheckbox();
+                    seat.appendChild(checkbox);
+                    seat.addEventListener("click", SeatClickHandler);
+                    seat.setValue = function(value){
+                        var checkbox = this.querySelector("input[type=checkbox]");
+                        checkbox.value = value;
+                    };
+                    return seat;
+                }
+                else if(v === 'disabled'){
+                    var seat = this.createUnit();
+                    seat.classList.add("disabled");
+                    return seat;
+                }
+                else{
+                    var seat = document.createElement("div");
+                    seat.classList.add("cinema-seat");
+                    seat.style.width = this.options.unitSize+"px";
+                    seat.style.height = this.options.unitSize+"px";
+                    return seat;
+                }
+            };
+
+            w.Hacademy.Reservation.prototype.createCheckbox = function(check){
+                var checkbox = document.createElement("input");
+                checkbox.setAttribute("type", "checkbox");
+                checkbox.setAttribute("name", this.options.sendName);
+                checkbox.style.display = "none";
+                checkbox.checked = !!check;
+                return checkbox;
+            };
+        })(window);
+    </script>
+    <script>
+        window.addEventListener("load", function(){
+            var tag = document.querySelector(".cinema-wrap");
+            var cinema = new Hacademy.Reservation(tag);
+        });
+    </script>
+</head>
+<body>
+    <form action="cinema-seat.html" method="get">
+        <div class="cinema-wrap" data-name="seat">
+            <div class="cinema-screen" data-position="top">스크린</div>
+            <div class="cinema-seat-area" data-rowsize="10" data-colsize="10" data-mode="auto"></div>
+        </div>
+
+        <input type="submit" value="선택">
+    </form>
+</body>
+</html>
