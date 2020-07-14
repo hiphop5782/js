@@ -1,22 +1,32 @@
-.cinema-wrap{
+.cinema-wrap * {
+            
     box-sizing: border-box;
+}
+.cinema-wrap{
     border:1px solid black;
     position:relative;
 }
+
 .cinema-wrap > .cinema-screen{
     width:60%;
     border:1px solid gray;
     text-align: center;
     color:gray;
-    padding:10px;
-    margin:1rem auto;
+    padding:1rem;
+    margin:auto;
+}
+@media screen and (max-width:640px){
+    .cinema-wrap > .cinema-screen{
+        width:90%;
+        font-size: 0.75rem;
+    }
 }
 
 .cinema-wrap > .cinema-seat-area{
     position:relative;
-    padding:10px;
-    width:90%;
-    margin:1rem auto;
+    padding:1rem !important;
+    width:100%;
+    margin:auto;
 }
 
 .cinema-wrap > .cinema-seat-area::after {
@@ -27,7 +37,7 @@
 .cinema-wrap > .cinema-seat-area > .cinema-seat{
     float:left;
     background-repeat: no-repeat;
-    background-size: cover;
+    background-size: 100%;
 }
 
 .cinema-wrap > .cinema-seat-area > .cinema-seat:not(.empty){

@@ -1,185 +1,184 @@
 (function(w){
-    w.Hakademy = w.Hakademy || {};
-    w.Hakademy.util = w.Hakademy.util || {};
-    w.Hakademy.util.filterNodesByClassName = function(list, className){
-        var rowList = [];
-        for(var i=0; i < list.length; i++){
-            try{ 
-                if(list[i].classList.contains(className)){
-                    rowList.push(list[i]);
-                }
-            }catch(e){}
-        }
-        return rowList;
-    };
-    w.Hakademy.Reservation = function(area){
-        var children = area.children;
-        var seat_area = Hakademy.util.filterNodesByClassName(children, "cinema-seat-area")[0];
-        if(!seat_area){
-            throw "cinema-seat-area가 존재하지 않습니다";
-        }
-        this.seat_area = seat_area;
-
-        var rowsize = seat_area.getAttribute("data-rowsize");      
-        if(!rowsize){
-            throw "cinema-seat-area에 data-rowsize를 정의하십시오";
-        }
-        this.rowsize = function(){ return rowsize; };
-        
-        var colsize = seat_area.getAttribute("data-colsize");
-        if(!colsize){
-            throw "cinema-seat-area에 data-colsize를 정의하십시오";
-        }
-        this.colsize = function(){ return colsize; };
-
-        var sendName = area.getAttribute("data-name");
-        if(!sendName){
-            console.warn("data-name이 설정되지 않아 seat으로 설정됩니다");
-            sendName = "seat";
-        }
-
-        var width;
-        try{
-            width = parseInt(window.getComputedStyle(seat_area, null).width);
-        }
-        catch(e){
-            width = parseInt(seat_area.currentStyle.width);
-        }
-
-        this.width = function(){
-            return width;
-        };
-
-        var size = parseInt(width / colsize);
-        this.size = function(){
-            return size;
-        };
-
-        var seatList = seat_area.children;
-        var cloneList = [];
-        while(seatList.length > 0){
-            var item = seatList[0];
-            var cloneNode = item.cloneNode(true);
-            cloneList.push(cloneNode);
-            seat_area.removeChild(item);
-        }
-        var seat_unit = cloneList.shift();
-        for(var r = 1; r <= rowsize ; r++){
-            for(var c = 1; c <= colsize; c++){
-                //배치할 좌석이 없으면 전부 빈칸으로 채움
-                if(!seat_unit){
-                    appendEmptySeat(seat_area, size);
-                    continue;
-                }
-
-                var rownum = parseInt(seat_unit.getAttribute("data-row"));
-                var colnum = parseInt(seat_unit.getAttribute("data-column"));
-
-                //규격을 벗어날 경우 skip
-                if(rownum > rowsize || rownum < 1 || colnum > colsize || colnum < 1) 
-                    continue;
-                
-                //줄칸이 맞지 않으면 빈칸으로 채움
-                if(r != rownum || c != colnum){
-                    appendEmptySeat(seat_area, size);
-                }
-                //나머지 좌석
-                else{
-                    if(seat_unit.classList.contains("disabled")){
-                        appendDisabledSeat(seat_area, size);
-                    }
-                    else if(seat_unit.classList.contains("active")){
-                        appendActiveSeat(seat_area, size);
-                    }
-                    else{
-                        appendNormalSeat(seat_area, size);
-                    }
-                    seat_unit = cloneList.shift();
-                }
-            }
-
-            var app = this;
-            w.addEventListener("resize", function(){
-                app.resize();
-            });
-        }
-
-        w.Hakademy.Reservation.prototype.resize = function(){
-            var colsize = this.seat_area.getAttribute("data-colsize");
-            var width;
-            try{
-                width = parseInt(window.getComputedStyle(seat_area, null).width);
-            }
-            catch(e){
-                width = parseInt(seat_area.currentStyle.height);
-            }
-            var size = parseInt(width / colsize);
-            var list = this.seat_area.children;
-            for(var i=0; i < list.length; i++){
-                list[i].style.width = size + "px";
-                list[i].style.height = size + "px";
-            }
-        };
-
-        //좌석 클릭 이벤트 리스너
-        function clickListener(){
-            var checkbox = this.childNodes[0];
-            checkbox.checked = !checkbox.checked;
-            
-            if(checkbox.checked){
-                this.classList.add("active");
-            }
-            else{
-                this.classList.remove("active");
-            }
-        }
-
-        function appendDisabledSeat(area, size){
-            var seat = createEmptySeat(size);
-            seat.classList.add("disabled");
-            area.appendChild(seat);
-        }
-
-        function appendNormalSeat(area, size){
-            var seat = createEmptySeat(size);
-            var checkbox = document.createElement("input");
-            checkbox.type = "checkbox"
-            checkbox.name = sendName;
-            checkbox.value = r+"-"+c;
-            checkbox.style.display = "none";
+    w.Hacademy = w.Hacademy || {};
+    w.Hacademy.util = w.Hacademy.util || {};
+    
+    //좌석 선택 이벤트 핸들러
+    function SeatClickHandler(){
+        var checkbox = this.querySelector("input[type=checkbox]");
+        if(checkbox.checked){
             checkbox.checked = false;
-            seat.appendChild(checkbox);
-            seat.addEventListener("click", clickListener);
-            area.appendChild(seat);
+            this.classList.remove("active");
         }
-
-        function appendActiveSeat(area, size){
-            var seat = createEmptySeat(size);
-            var checkbox = document.createElement("input");
-            checkbox.type = "checkbox"
-            checkbox.name = sendName;
-            checkbox.value = r+"-"+c;
-            checkbox.style.display = "none";
+        else{
             checkbox.checked = true;
-            seat.classList.add("active");
-            seat.appendChild(checkbox);
-            seat.addEventListener("click", clickListener);
-            area.appendChild(seat);
+            this.classList.add("active");
+        }
+    }
+
+    w.Hacademy.Reservation = function(area, callback){
+        if(!area) 
+            throw "영역이 정의되지 않았습니다";
+
+        if(typeof area === 'string')
+            area = document.querySelector(area);
+
+        var seatArea = area.querySelector(".cinema-seat-area");
+        if(!seatArea){
+            throw "좌석 영역이 지정되지 않았습니다(class='cinema-seat-area')";
         }
 
-        function appendEmptySeat(area, size){
-            var seat = createEmptySeat(size);
+        var rowsize = seatArea.dataset.rowsize;
+        if(!rowsize){
+            throw "줄의 크기를 올바르게 설정하십시오";
+        }
+        var colsize = seatArea.dataset.colsize;
+        if(!colsize){
+            throw "칸의 크기를 올바르게 설정하십시오";
+        }
+
+        //좌석 영역 폭 계산
+        var seatAreaWidth = calculateInnerWidth(seatArea);
+
+        //좌석 크기 계산(좌석은 무조건 정사각형)
+        var unitSize = parseInt(seatAreaWidth / colsize);
+
+        //좌석 배치 방법은 2가지
+        //data-mode="auto" : 자동으로 빈좌석을 채움(기본값)
+        //data-mode="manual" : 수동으로 좌석을 채움
+        var mode = seatArea.dataset.mode || 'auto';
+
+        //전송 이름(없으면 seat으로 설정)
+        var sendName = area.dataset.name || 'seat';
+
+        this.options = {
+            area:area,
+            seatArea:seatArea,
+            rowsize:rowsize,
+            colsize:colsize,
+            seatAreaWidth:seatAreaWidth,
+            unitSize:unitSize,
+            mode:mode,
+            sendName:sendName
+        };
+
+        if(mode === 'auto'){
+            this.automaticFillProcess();
+        }
+        else{
+            this.manualFillProcess();
+        }
+
+        var app = this;
+        w.addEventListener("resize", function(){
+            app.resize();
+        });
+
+        app.resize();
+    };
+
+    w.Hacademy.Reservation.prototype.automaticFillProcess = function(){
+        for(var i=0; i < this.options.rowsize; i++){
+            for(var j=0; j < this.options.colsize; j++){
+                var value = i + "-" + j;
+                var seat = this.createUnit("normal");
+                seat.setValue(value);
+                this.options.seatArea.appendChild(seat);
+            }
+        }
+    };
+    w.Hacademy.Reservation.prototype.manualFillProcess = function(){
+        var rowsize = this.options.rowsize;
+        var colsize = this.options.colsize;
+        var seatArea = this.options.seatArea;
+        var cloneSeatArea = seatArea.cloneNode(true);
+        this.options.seatArea.innerHTML = "";
+        for(var i=1; i <= rowsize; i++){
+            for(var j=1; j <= colsize; j++){
+                var findElement = cloneSeatArea.querySelector(".cinema-seat[data-row='"+i+"'][data-col='"+j+"']");
+                if(findElement){
+                    var state = findElement.dataset.state || "normal";
+                    var seat = this.createUnit(state);
+                    seatArea.appendChild(seat);
+                }
+                else {
+                    var seat = this.createUnit("empty");
+                    seatArea.appendChild(seat);
+                }
+            }
+        }
+    };
+    w.Hacademy.Reservation.prototype.createUnit = function(v){
+        if(v === 'empty'){
+            var seat = this.createUnit();
             seat.classList.add("empty");
-            area.appendChild(seat);
+            return seat;
         }
-
-        //기본 좌석 생성
-        function createEmptySeat(size){
+        else if(v === 'active'){
+            var seat = this.createUnit();
+            var checkbox = this.createCheckbox(true);
+            seat.appendChild(checkbox);
+            seat.classList.add("active");
+            seat.addEventListener("click", SeatClickHandler);
+            seat.setValue = function(value){
+                var checkbox = this.querySelector("input[type=checkbox]");
+                checkbox.value = value;
+            };
+            return seat;
+        }
+        else if(v === 'normal'){
+            var seat = this.createUnit();
+            var checkbox = this.createCheckbox();
+            seat.appendChild(checkbox);
+            seat.addEventListener("click", SeatClickHandler);
+            seat.setValue = function(value){
+                var checkbox = this.querySelector("input[type=checkbox]");
+                checkbox.value = value;
+            };
+            return seat;
+        }
+        else if(v === 'disabled'){
+            var seat = this.createUnit();
+            seat.classList.add("disabled");
+            return seat;
+        }
+        else{
             var seat = document.createElement("div");
             seat.classList.add("cinema-seat");
-            seat.style.width = size+"px";
-            seat.style.height = size+"px";
+            seat.style.width = this.options.unitSize+"px";
+            seat.style.height = this.options.unitSize+"px";
             return seat;
         }
     };
+
+    w.Hacademy.Reservation.prototype.createCheckbox = function(check){
+        var checkbox = document.createElement("input");
+        checkbox.setAttribute("type", "checkbox");
+        checkbox.setAttribute("name", this.options.sendName);
+        checkbox.style.display = "none";
+        checkbox.checked = !!check;
+        return checkbox;
+    };
+
+    //크기 재조정
+    w.Hacademy.Reservation.prototype.resize = function(){
+        this.options.seatAreaWidth = calculateInnerWidth(this.options.seatArea);
+        this.options.unitSize = parseInt(this.options.seatAreaWidth / this.options.colsize);
+        
+        var seatList = this.options.seatArea.querySelectorAll(".cinema-seat");
+        for(var i=0; i < seatList.length; i++){
+            seatList[i].style.width = this.options.unitSize + "px";
+            seatList[i].style.height = this.options.unitSize + "px";
+        }            
+    };
+
+    function calculateInnerWidth(tag){
+        var style = window.getComputedStyle(tag, null);
+        var fix = 0;//17px만큼 오차가 발생하는 원인을 아직 파악하지 못함
+        if(style.boxSizing === 'border-box'){
+            return parseFloat(style.width) - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight) - parseFloat(style.borderLeftWidth) - parseFloat(style.borderRightWidth) - fix;
+        }
+        else{
+            return parseFloat(style.width) - fix;
+        }
+    }
 })(window);
