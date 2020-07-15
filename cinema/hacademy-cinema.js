@@ -96,8 +96,10 @@
             for(var j=1; j <= colsize; j++){
                 var findElement = cloneSeatArea.querySelector(".cinema-seat[data-row='"+i+"'][data-col='"+j+"']");
                 if(findElement){
+                    var value = i + "-" + j;
                     var state = findElement.dataset.state || "normal";
                     var seat = this.createUnit(state);
+                    seat.setValue(value);
                     seatArea.appendChild(seat);
                 }
                 else {
