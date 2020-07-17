@@ -99,10 +99,9 @@
                     var value = i + "-" + j;
                     var state = findElement.dataset.state || "normal";
                     var seat = this.createUnit(state);
-                    try{
+                    if(seat.setValue){
                         seat.setValue(value);
                     }
-                    catch(e){}
                     seatArea.appendChild(seat);
                 }
                 else {
