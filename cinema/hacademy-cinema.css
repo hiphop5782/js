@@ -1,5 +1,4 @@
 .cinema-wrap * {
-            
     box-sizing: border-box;
 }
 .cinema-wrap{
@@ -48,4 +47,25 @@
 }
 .cinema-wrap > .cinema-seat-area > .cinema-seat.disabled:not(.empty){
     background-image: url("http://www.sysout.co.kr/file/image/284");
+}
+
+.cinema-wrap > .cinema-seat-area > .cinema-seat[data-direction=up]{
+    transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+}
+.cinema-wrap > .cinema-seat-area > .cinema-seat[data-direction=right]{
+    transform: rotate(90deg);
+    -webkit-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+}
+.cinema-wrap > .cinema-seat-area > .cinema-seat[data-direction=down]{
+    transform: rotate(180deg);
+    -webkit-transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+}
+.cinema-wrap > .cinema-seat-area > .cinema-seat[data-direction=left]{
+    transform: rotate(270deg);
+    -webkit-transform: rotate(270deg);
+    -ms-transform: rotate(270deg);
 }
