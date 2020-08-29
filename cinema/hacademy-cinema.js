@@ -15,7 +15,6 @@
         });
 
         var seatArea = area.querySelector(".cinema-seat-area");
-        console.log(seatArea);
         if(!seatArea){
             throw "좌석 영역이 지정되지 않았습니다(class='cinema-seat-area')";
         }
@@ -174,7 +173,6 @@
                     seat.dataset.row = i;
                     seat.dataset.col = j;
                     seat.dataset.direction = findElement.dataset.direction || "up";
-                    var value = i + "-" + j;
                     seatArea.appendChild(seat);
                     if(seat.setSeatNumber){
                         seat.setSeatNumber(i+"-"+j);
@@ -389,7 +387,15 @@
     }
 
     w.Hacademy.Reservation.prototype.refreshValue = function(){
-        var list = this.options.seatArea.querySelectorAll(".cinema-seat, .cinema-space");
+        var list;
+        if(this.options.mode === "manager") 
+            list = this.options.seatArea.querySelectorAll(".cinema-seat, .cinema-space");
+        else if(this.options.mode === "client"){
+            list = this.options.seatArea.querySelectorAll(".cinema-seat");
+        }
+
+        if(!list) return;
+
         for(var i=0; i < list.length; i++){
             this.setValue(list[i]);
         }
