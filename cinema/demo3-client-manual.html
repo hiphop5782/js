@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>영화관 좌석 배치</title>
+    <link rel="stylesheet" type="text/css" href="./hacademy-cinema.css">
+    <style>
+        .float-box > div{
+            float:left;
+            width:100%;
+        }
+        .float-box::after{
+            content:"";
+            display: block;
+            clear:both;
+        }
+    </style>
+    <script src="./hacademy-cinema.js"></script>
+    <script>
+        window.addEventListener("load", function(){
+            var cinema = new Hacademy.Reservation("#cinema");
+            cinema.addChangeListener(function(seat){
+                print(this);
+            });
+            print(cinema);
+            function print(app){
+                document.querySelector(".result").textContent = app.getQueryString();
+            }
+        });
+    </script>
+</head>
+<body>
+    <h1 align="center">Demo 3 : Client manual mode</h1>
+    <ul>
+        <li>관리자 모드에서 만들어진 좌석을 표시하고 선택하는 경우</li>
+        <li>.cinema-seat-area에 data-mode="client"로 설정하거나 미작성 시 사용자 모드 설정</li>
+        <li>.cinema-seat-area에 data-fill="manual"로 설정하여 수동 모드 설정</li>
+        <li>좌석번호를 표시하고 싶은 경우 .cinema-seat-area에 data-seatno="visible"로 설정</li>
+        <li>좌석번호는 현재 임의의 수정이 불가</li>
+        <li>좌석 열 수를 벗어나는 좌석은 삭제됨</li>
+        <li>좌석 칸 수를 벗어나는 좌석은 삭제됨</li>
+    </ul>
+    <div class="float-box">
+        <div>
+            <form action="example.html" method="get">
+
+                <div id="cinema" class="cinema-wrap" data-name="seat">
+                    <div class="cinema-screen">상단 구조물 또는 제목 영역</div>
+                    <div class="cinema-seat-area" data-rowsize="3" data-colsize="5" data-mode="client" data-fill="manual"" data-seatno="visible">
+                        <div class="cinema-seat" data-row="1" data-col="1" data-direction="right"></div>
+                        <div class="cinema-seat" data-row="1" data-col="2" data-state="space"></div>
+                        <div class="cinema-seat" data-row="1" data-col="3" data-state="space"></div>
+                        <div class="cinema-seat" data-row="1" data-col="4" data-state="space"></div>
+                        <div class="cinema-seat" data-row="1" data-col="5" data-direction="left"></div>
+                        <div class="cinema-seat" data-row="2" data-col="1" data-direction="right"></div>
+                        <div class="cinema-seat" data-row="2" data-col="2" data-direction="right" data-state="disabled"></div>
+                        <div class="cinema-seat" data-row="2" data-col="3" data-state="space"></div>
+                        <div class="cinema-seat" data-row="2" data-col="4" data-direction="left" data-state="disabled"></div>
+                        <div class="cinema-seat" data-row="2" data-col="5" data-direction="left" data-state="disabled"></div>
+                        <div class="cinema-seat" data-row="3" data-col="1" data-direction="right"></div>
+                        <div class="cinema-seat" data-row="3" data-col="2" data-direction="right"></div>
+                        <div class="cinema-seat" data-row="3" data-col="3" data-state="space"></div>
+                        <div class="cinema-seat" data-row="3" data-col="4" data-direction="left"></div>
+                        <div class="cinema-seat" data-row="3" data-col="5" data-direction="left"></div>
+                    </div>
+                </div>
+        
+                <input type="submit" value="선택">
+            </form> 
+        </div>
+
+        <h2 align="center">전송되는 데이터 형태</h2>
+
+        <div class="result">
+            
+        </div>
+    </div>
+</body>
+</html>

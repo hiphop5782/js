@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>영화관 좌석 배치</title>
+    <link rel="stylesheet" type="text/css" href="./hacademy-cinema.css">
+    <style>
+        .float-box > div{
+            float:left;
+            width:100%;
+        }
+        .float-box::after{
+            content:"";
+            display: block;
+            clear:both;
+        }
+    </style>
+    <script src="./hacademy-cinema.js"></script>
+    <script>
+        window.addEventListener("load", function(){
+            var cinema = new Hacademy.Reservation("#cinema");
+            cinema.addChangeListener(function(seat){
+                print(this);
+            });
+            print(cinema);
+            function print(app){
+                document.querySelector(".result").textContent = app.getQueryString();
+            }
+        });
+    </script>
+</head>
+<body>
+    <h1 align="center">Demo 1 : Manager auto mode</h1>
+    <ul>
+        <li>관리자 모드에서는 최초에 좌석을 생성하기 위한 명령을 지원</li>
+        <li>.cinema-seat-area에 data-mode="manager"로 관리자 모드 설정</li>
+        <li>좌석을 우클릭하면 시계 방향으로 회전</li>
+        <li>좌석을 선택한 후 Delete 키를 누르면 좌석 삭제</li>
+        <li>좌석을 선택한 후 F2 키를 누르면 좌석이 사라지고 공간으로 병합됨</li>
+        <li>좌석을 선택한 후 F3 키를 누르면 좌석이 선택 불가로 전환됨</li>
+        <li>좌석번호를 표시하고 싶은 경우 .cinema-seat-area에 data-seatno="visible"로 설정</li>
+    </ul>
+    <div class="float-box">
+        <div>
+            <form action="example.html" method="get">
+                <div id="cinema" class="cinema-wrap" data-name="seat">
+                    <div class="cinema-seat-area" data-rowsize="3" data-colsize="5" data-mode="manager" data-fill="auto" data-seatno="visible"></div>
+                </div>
+        
+                <input type="submit" value="선택">
+            </form>
+        </div>
+
+        <h2 align="center">전송되는 데이터 형태</h2>
+        <div class="result">
+
+        </div>
+    </div>
+</body>
+</html>
