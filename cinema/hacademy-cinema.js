@@ -44,6 +44,11 @@
         //data-fill="manual" : 수동으로 좌석을 채움
         var fill = seatArea.dataset.fill || 'auto';
 
+        //좌석 선택 방법은 2가지
+        //data-choice="single" : 좌석을 하나만 선택할 수 있음
+        //data-choice="multiple" : 좌석을 여러 개 선택할 수 있음(기본값)
+        var choice = seatArea.dataset.choice || 'multiple';
+
         //전송 이름(없으면 seat으로 설정)
         var sendName = area.dataset.name || 'seat';
         
@@ -61,6 +66,7 @@
             seatAreaWidth:seatAreaWidth,
             unitSize:unitSize,
             mode:mode,
+            choice:choice,
             fill:fill,
             sendName:sendName,
             seatNoVisible:seatNoVisible
@@ -358,11 +364,18 @@
             var newUnit = unit.cloneNode(true);
             newUnit.addEventListener("contextmenu", function(e){
                 e.preventDefault();
-                app.changeUnit("direction");
+                app.changeUnit(this, "direction");
             });
             unit.parentNode.replaceChild(newUnit, unit);
         }
         else if(mode === "active"){
+            //single 모드이면 모든 선택을 초기화
+            if(app.options.choice === "single"){
+                var list = app.options.seatArea.querySelectorAll(".cinema-seat.active");
+                for(var i=0; i < list.length; i++){
+                    app.changeUnit(list[i], "normal");
+                }
+            }
             unit.classList.remove("active", "empty", "disabled", "cinema-seat", "cinema-space");
             unit.classList.add("cinema-seat", "active");
             unit.dataset.state = mode;
