@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>example2 - alert</title>
+    <!-- 
+    <link rel="stylesheet" type="text/css" href="http://www.sysout.co.kr/home/lib/websocket/hacademy-messenger/hacademy-messenger.css">
+    <script src="http://www.sysout.co.kr/home/lib/websocket/hacademy-messenger/hacademy-messenger.js"></script> 
+    -->
+    <link rel="stylesheet" type="text/css" href="./hacademy-messenger.css">
+    <script src="./hacademy-messenger.js"></script> 
+    <script>
+        window.addEventListener("load", function(){
+            window.messenger = new Hacademy.Messenger(".custom-chat", {
+                height:"300px",
+                autoConnect:false,
+            });
+
+            document.querySelector(".send").addEventListener("click", function(){
+                var text = document.querySelector("[name=alert]").value;
+                if(!text.trim()) return;
+                messenger.addAlert(text);
+                document.querySelector("[name=alert]").value = "";
+            });
+        });
+
+        
+    </script>
+</head>
+<body>
+    <h2>알림 추가</h2>
+    <input name="alert" placeholder="알림내용"><br><br>
+    <button class="send">알림표시</button>
+    <hr>
+    <div class="custom-chat"></div>
+</body>
+</html>

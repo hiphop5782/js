@@ -51,7 +51,7 @@
 		var contentWrapper = document.createElement("div");
 		var profile = document.createElement("div");
 		var title = document.createElement("div");
-		var content = document.createElement("div");
+		var content = document.createElement("pre");
 		var time = document.createElement("div");
 		var img = document.createElement("img");
 		
@@ -83,14 +83,16 @@
 		if(this.record.length){
 			var idx = this.record.length - 1;
 			var prevMessage = this.record[idx];
-			if(prevMessage.sender === message.sender 
+            if(prevMessage.sender === message.sender 
+                    && prevMessage.mine == message.mine
 					&& prevMessage.time === message.time){
 				var messageElement = document.querySelector("#m"+(idx));
 				messageElement.querySelector(".content-time").textContent = "";
 				
 				profile.removeChild(img);
 				profile.style.height = "auto";
-				contentWrapper.removeChild(title);
+                contentWrapper.removeChild(title);
+                profileWrapper.textContent = "";
 			}
 		}
 		this.record.push(message);

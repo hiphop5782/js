@@ -18,13 +18,14 @@
 	display:flex;
 }
 .hacademy-messenger-wrap > .message > .message-profile {
-	padding:5px;
+	width:45px;
 }
 .hacademy-messenger-wrap > .message > .message-profile > .profile-image {
 	width:35px;
 	height:35px;
 	border-radius: 50%;
-	overflow: hidden;
+    overflow: hidden;
+    margin:auto;
 }
 .hacademy-messenger-wrap > .message > .message-profile > .profile-image > img{
 	width:100%;
@@ -39,6 +40,7 @@
 	font-style:bold;
 }
 .hacademy-messenger-wrap > .message > .message-content > .content-text {
+    margin:0;
 	padding:5px;
 	text-overflow: ellipsis;
 	overflow: hidden;
@@ -46,7 +48,7 @@
 	-webkit-line-clamp:5;
 	-webkit-box-orient:vertical;
 	background-color: white;
-	white-space: normal;
+	white-space: pre-line;
 	word-break:break-all;
 	border-radius: 0.2rem;
 }
