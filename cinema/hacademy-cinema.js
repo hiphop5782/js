@@ -3,7 +3,7 @@
     w.Hacademy.util = w.Hacademy.util || {};
     
     //좌석 선택 이벤트 핸들러
-    function SeatClickHandler(){
+    function SeatLeftClickHandler(){
         var checkbox = this.querySelector("input[type=checkbox]");
         if(checkbox.checked){
             checkbox.checked = false;
@@ -12,6 +12,15 @@
         else{
             checkbox.checked = true;
             this.classList.add("active");
+        }
+    }
+    function SeatRightClickHandler(e){
+        e.preventDefault();
+        switch(e.target.dataset.direction){
+            case 'up': e.target.dataset.direction = 'right'; break;
+            case 'right': e.target.dataset.direction = 'down'; break;
+            case 'down': e.target.dataset.direction = 'left'; break;
+            case 'left': e.target.dataset.direction = 'up'; break;
         }
     }
 
@@ -49,6 +58,9 @@
 
         //전송 이름(없으면 seat으로 설정)
         var sendName = area.dataset.name || 'seat';
+        
+        //배치방향(없으면 up으로 설정)
+        var direction = area.dataset.direction || 'up';
 
         this.options = {
             area:area,
@@ -58,7 +70,8 @@
             seatAreaWidth:seatAreaWidth,
             unitSize:unitSize,
             mode:mode,
-            sendName:sendName
+            sendName:sendName,
+            direction:direction
         };
 
         if(mode === 'auto'){
@@ -79,8 +92,9 @@
     w.Hacademy.Reservation.prototype.automaticFillProcess = function(){
         for(var i=0; i < this.options.rowsize; i++){
             for(var j=0; j < this.options.colsize; j++){
-                var value = i + "-" + j;
+                var value = i + "-" + j + "-" + this.options.direction;
                 var seat = this.createUnit("normal");
+                seat.dataset.direction = this.options.direction;
                 seat.setValue(value);
                 this.options.seatArea.appendChild(seat);
             }
@@ -122,7 +136,8 @@
             var checkbox = this.createCheckbox(true);
             seat.appendChild(checkbox);
             seat.classList.add("active");
-            seat.addEventListener("click", SeatClickHandler);
+            seat.addEventListener("click", SeatLeftClickHandler);
+            seat.addEventListener("contextmenu", SeatRightClickHandler);
             seat.setValue = function(value){
                 var checkbox = this.querySelector("input[type=checkbox]");
                 checkbox.value = value;
@@ -133,7 +148,8 @@
             var seat = this.createUnit();
             var checkbox = this.createCheckbox();
             seat.appendChild(checkbox);
-            seat.addEventListener("click", SeatClickHandler);
+            seat.addEventListener("click", SeatLeftClickHandler);
+            seat.addEventListener("contextmenu", SeatRightClickHandler);
             seat.setValue = function(value){
                 var checkbox = this.querySelector("input[type=checkbox]");
                 checkbox.value = value;

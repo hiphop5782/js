@@ -1,0 +1,79 @@
+.hacademy-messenger-wrap{
+	box-sizing: border-box;
+	overflow-y:scroll;
+}
+.hacademy-messenger-wrap {
+	background-color: #b2c7d9;
+	padding:10px;
+}
+.hacademy-messenger-wrap > .alert{
+	text-align: center;
+	background-color: #a9bdce;
+	padding:0.2rem;
+	margin:0.5rem 0;
+}
+.hacademy-messenger-wrap > .message {
+	width:80%;
+	margin:0.5rem 0;
+	display:flex;
+}
+.hacademy-messenger-wrap > .message > .message-profile {
+	padding:5px;
+}
+.hacademy-messenger-wrap > .message > .message-profile > .profile-image {
+	width:35px;
+	height:35px;
+	border-radius: 50%;
+	overflow: hidden;
+}
+.hacademy-messenger-wrap > .message > .message-profile > .profile-image > img{
+	width:100%;
+	height:100%;
+}
+.hacademy-messenger-wrap > .message > .message-content{
+	position: relative;
+}
+.hacademy-messenger-wrap > .message > .message-content > .content-sender {
+	padding:5px;
+	font-size:1.2rem;
+	font-style:bold;
+}
+.hacademy-messenger-wrap > .message > .message-content > .content-text {
+	padding:5px;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	display:-webkit-box;
+	-webkit-line-clamp:5;
+	-webkit-box-orient:vertical;
+	background-color: white;
+	white-space: normal;
+	word-break:break-all;
+	border-radius: 0.2rem;
+}
+.hacademy-messenger-wrap > .message > .message-content > .content-time {
+	position:absolute;
+	right:0;
+	bottom:0;	
+	font-size:0.75rem;
+	transform:translateX(100%);
+	padding:0 0.5rem;
+	white-space: nowrap;
+}
+
+/* my message style */
+.hacademy-messenger-wrap > .message.my-message {
+	flex-direction: row-reverse;
+	margin-left: auto;
+}
+.hacademy-messenger-wrap > .message.my-message > .message-profile,
+.hacademy-messenger-wrap > .message.my-message > .message-content > .content-sender{
+	display: none;
+}
+.hacademy-messenger-wrap > .message.my-message > .message-content > .content-text {
+	background-color:#FFEB33;
+}
+.hacademy-messenger-wrap > .message.my-message > .message-content > .content-time {
+	right:auto;
+	left:0;
+	transform:translateX(-100%);
+}

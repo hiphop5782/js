@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>example1 - no connection</title>
+    <!-- 
+    <link rel="stylesheet" type="text/css" href="http://www.sysout.co.kr/home/lib/websocket/hacademy-messenger/hacademy-messenger.css">
+    <script src="http://www.sysout.co.kr/home/lib/websocket/hacademy-messenger/hacademy-messenger.js"></script> 
+    -->
+    <link rel="stylesheet" type="text/css" href="./hacademy-messenger.css">
+    <script src="./hacademy-messenger.js"></script> 
+    <script>
+        window.addEventListener("load", function(){
+            displayData();
+
+            window.messenger = new Hacademy.Messenger(".custom-chat", {
+                height:"300px",
+                autoConnect:false,
+            });
+
+            document.querySelector(".send").addEventListener("click", function(){
+                var now = new Date().toLocaleTimeString();
+
+                var message = {
+                    profile:"https://placehold.it/50x50?text=P",
+                    sender:document.querySelector("[name=sender]").value,
+                    content:document.querySelector("[name=content]").value,
+                    time:now.substring(0, now.length-3),
+                    mine:document.querySelector("[name=mine]").checked,
+                };
+
+                messenger.addMessage(message);
+            });
+
+            document.querySelector("[name=sender]").addEventListener("input", displayData);
+            document.querySelector("[name=content]").addEventListener("input", displayData);
+            document.querySelector("[name=mine]").addEventListener("change", displayData);
+            function displayData(){
+                var now = new Date().toLocaleTimeString();
+                var message = {
+                    profile:"https://placehold.it/50x50?text=P",
+                    sender:document.querySelector("[name=sender]").value,
+                    content:document.querySelector("[name=content]").value,
+                    time:now.substring(0, now.length-3),
+                    mine:document.querySelector("[name=mine]").checked,
+                };
+                document.querySelector(".data").textContent = JSON.stringify(message, null, 4);
+            }
+        });
+
+        
+    </script>
+</head>
+<body>
+    <input type="text" name="sender" placeholder="보낸사람"><br><br>
+    <textarea name="content" rows="3" cols="40" style="resize:none;" placeholder="내용"></textarea><br><br>
+    <button class="send">전송</button>
+    <input type="checkbox" name="mine"> 내 메시지
+    <pre class="data"></pre>
+    <hr>
+    <div class="custom-chat"></div>
+</body>
+</html>
