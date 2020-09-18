@@ -4,12 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>example1 - no connection</title>
-    <!-- 
-    <link rel="stylesheet" type="text/css" href="http://www.sysout.co.kr/home/lib/websocket/hacademy-messenger/hacademy-messenger.css">
-    <script src="http://www.sysout.co.kr/home/lib/websocket/hacademy-messenger/hacademy-messenger.js"></script> 
-    -->
-    <link rel="stylesheet" type="text/css" href="./hacademy-messenger.css">
-    <script src="./hacademy-messenger.js"></script> 
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/hiphop5782/js/messenger/hacademy-messenger.css">
+    <style>
+        .flex-box{
+            display: flex;
+        }
+        .flex-box > .flex-item {
+            flex-grow: 1;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/gh/hiphop5782/js/messenger/hacademy-messenger.js"></script> 
     <script>
         window.addEventListener("load", function(){
             displayData();
@@ -48,17 +52,21 @@
                 document.querySelector(".data").textContent = JSON.stringify(message, null, 4);
             }
         });
-
-        
     </script>
 </head>
 <body>
-    <h1>메세지 추가</h1>
-    <input type="text" name="sender" placeholder="보낸사람"><br><br>
-    <textarea name="content" rows="3" cols="40" style="resize:none;" placeholder="내용"></textarea><br><br>
-    <button class="send">전송</button>
-    <input type="checkbox" name="mine"> 내 메시지
-    <pre class="data"></pre>
+    <div class="flex-box">
+        <div class="flex-item">
+            <h1>메세지 추가</h1>
+            <input type="text" name="sender" placeholder="보낸사람"><br><br>
+            <textarea name="content" rows="3" cols="40" style="resize:none;" placeholder="내용"></textarea><br><br>
+            <button class="send">전송</button>
+            <input type="checkbox" name="mine"> 내 메시지            
+        </div>
+        <div class="flex-item">
+            <pre class="data"></pre>
+        </div>
+    </div>
     <hr>
     <div class="custom-chat"></div>
 </body>
