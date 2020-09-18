@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        div {
+            border:1px dotted black;
+        }
+        .hacademy-scheduler * {
+            box-sizing: border-box;
+        }
+        .hacademy-scheduler {
+            position: relative;
+        }
+        .hacademy-scheduler > .scheduler-row-header,
+        .hacademy-scheduler > .scheduler-column-header,
+        .hacademy-scheduler > .scheduler-task  {
+            position:absolute;
+        }
+        .hacademy-scheduler > .scheduler-row-header > span,
+        .hacademy-scheduler > .scheduler-column-header > span,
+        .hacademy-scheduler > .scheduler-task > span {
+            display: block;
+            position:absolute;
+            left:50%;
+            top:50%;
+            width:100%;
+            text-align: center;
+            transform: translate(-50%, -50%);
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        
+    </style>
+    <script>
+        (function(window){
+            if(!window) throw "Window not defined";
+
+            var defaultOptions = {
+                rowHeight:50,
+            };
+
+            window.Hacademy = window.Hacademy || {};
+            window.Hacademy.Scheduler = function(el, options){
+                if(typeof el === "string"){
+                    el = document.querySelector(el);
+                }
+
+                if(!el) throw "Target area not defined";
+
+                this.options = Object.assign({}, defaultOptions, options);
+
+                var rowHeader = el.dataset.rowHeader;
+                if(!rowHeader)
+                    throw "data-row-header를 찾을 수 없습니다";
+                this.options.rowHeaders = rowHeader.split(",");
+                
+                var columnHeader = el.dataset.columnHeader;
+                if(!columnHeader)
+                throw "data-column-header를 찾을 수 없습니다";
+                this.options.columnHeaders = columnHeader.split(",");
+
+
+                this.ui = {
+                    el : el,
+                };
+
+                this.initializeData();
+                this.initializeUI();
+            };
+
+            var Scheduler = window.Hacademy.Scheduler;
+
+            Scheduler.prototype.initializeData = function(){
+                //task 추가
+                var taskList = this.ui.el.querySelectorAll(".scheduler-task");
+
+                if(!this.options.tasks){
+                    this.options.tasks = new Array(this.options.rowHeaders.length);
+                    for(var i=0; i < this.options.tasks.length; i++){
+                        this.options.tasks[i] = new Array(this.options.columnHeaders.length).fill(null);
+                    }
+                }
+                
+                for(var i=0; i < taskList.length; i++){
+                    var row = taskList[i].dataset.row;
+                    var column = taskList[i].dataset.column;
+                    var text = taskList[i].textContent.trim();
+                    this.ui.el.removeChild(taskList[i]);
+
+                    if(!row || !column) continue;
+
+                    row = row.split(",");
+                    column = column.split(",");
+
+                    //this.createTaskElement(row, column, text);
+                    //데이터 먼저 배치(this.options.tasks - 2차원 배열)
+                    for(var r=0; r < row.length; r++){
+                        for(var c=0; c < column.length; c++){
+                            var rowText = row[r].trim();
+                            var columnText = column[c].trim();
+                            var rowIdx = this.options.rowHeaders.indexOf(rowText);
+                            var columnIdx = this.options.columnHeaders.indexOf(columnText);
+
+                            this.options.tasks[rowIdx][columnIdx] = text;
+                        }
+                    }
+                }
+            };
+
+            Scheduler.prototype.initializeUI = function(){
+                var rowCount = this.options.rowHeaders.length;
+                var columnCount = this.options.columnHeaders.length;
+                //메인 영역 크기 계산
+                //폭 : 100%
+                //높이 : (rowHeader 개수 + 1) * rowHeight
+                this.ui.el.classList.add("hacademy-scheduler");
+                this.ui.el.style.height = (rowCount + 1) * this.options.rowHeight + "px";
+
+                //row Header 추가
+                this.ui.rowHeaders = [];
+
+                var realWidth = parseInt(window.getComputedStyle(this.ui.el).width);
+                var columnWidth = realWidth / (columnCount + 1);
+
+                this.options.realWidth = realWidth;
+                this.options.columnWidth = columnWidth;
+
+                for(var i=0; i < rowCount; i++){
+                    var rowHeader = createElement("div", "scheduler-row-header");
+                    rowHeader.style.height = this.options.rowHeight + "px";
+                    rowHeader.style.top = (i + 1) * this.options.rowHeight + "px";
+                    rowHeader.style.left = 0;
+                    rowHeader.style.width = columnWidth + "px";
+                    var span = createElement("span");
+                    span.textContent = this.options.rowHeaders[i];
+                    rowHeader.appendChild(span);
+                    this.ui.el.appendChild(rowHeader);
+                    this.ui.rowHeaders.push(rowHeader);
+                }
+
+                //column header 추가
+                this.ui.columnHeaders = [];
+                for(var i=0; i < columnCount; i++){
+                    var columnHeader = createElement("div", "scheduler-column-header");
+                    columnHeader.style.width = columnWidth + "px";
+                    columnHeader.style.top = 0;
+                    columnHeader.style.left = (i + 1) * columnWidth + "px";
+                    columnHeader.style.height = this.options.rowHeight + "px";
+                    var span = createElement("span");
+                    span.textContent = this.options.columnHeaders[i].trim();
+                    columnHeader.appendChild(span);
+                    this.ui.el.appendChild(columnHeader);
+                    this.ui.columnHeaders.push(columnHeader);
+                }
+
+                this.createTaskElement();
+                this.mergeTaskElement();
+            };
+
+            Scheduler.prototype.resizeUI = function(){
+
+            };
+
+            Scheduler.prototype.createTaskElement = function(){
+                if(!this.ui.taskElements){
+                    this.ui.taskElements = new Array(this.options.rowHeaders.length);
+                    for(var i=0; i < this.options.tasks.length; i++){
+                        this.ui.taskElements[i] = new Array(this.options.columnHeaders.length).fill(null);
+                    }
+                }
+
+                var taskArray = this.options.tasks;
+                
+                for(var i=0; i < taskArray.length; i++){
+                    for(var j=0; j < taskArray[i].length; j++){
+                        if(!taskArray[i][j]) continue;
+
+                        var taskElement = createElement("div", "scheduler-task");
+                        taskElement.style.width = this.options.columnWidth + "px";
+                        taskElement.style.height = this.options.rowHeight + "px";
+                        taskElement.style.top = (i + 1) * this.options.rowHeight + "px";
+                        taskElement.style.left = (j + 1) * this.options.columnWidth + "px";
+
+                        var span = createElement("span");
+                        span.textContent = this.options.tasks[i][j];
+                        taskElement.appendChild(span);
+                        
+                        this.ui.el.appendChild(taskElement);
+                        this.ui.taskElements[i][j] = taskElement;
+                    }
+                }
+            };
+
+            Scheduler.prototype.mergeTaskElement = function(el){
+                if(!el){
+                    for(var i=0; i < this.options.tasks.length; i++){
+                        for(var j=0; j < this.options.tasks[i].length; j++){
+                            if(!this.options.tasks[i][j]) continue;
+                            var text = this.options.tasks[i][j];
+                            var rmin = i > 0 ? i - 1 : 0 , rmax = i < this.options.tasks.length - 1 ? i + 1 : this.options.tasks.length - 1;
+                            var cmin = j > 0 ? j - 1 : 0; cmax = i < this.options.tasks[i].length - 1 ? i + 1 : this.options.tasks.length[i] - 1;
+
+                            for(var r = rmin; r <= rmax; r++){
+                                for(var c = cmin; c <= cmax; c++){
+                                    if(i == r || j == c){
+                                        if(r != c){
+                                            if(text == this.options.tasks[r][c]){//(i, j)와 (r, c)는 병합 대상
+                                                console.log(i, j, r, c);
+                                                //this.ui.taskElements[r][c].style.display = "none";
+                                                this.ui.el.removeChild(this.ui.taskElements[r][c]);
+                                                this.ui.taskElements[r][c] = null;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            function createElement(type, className) {
+                var tag = document.createElement(type);
+                if(className){
+                    tag.classList.add(className);
+                }
+                return tag;
+            }
+        })(window);
+    </script>
+    <script>
+        window.addEventListener("load", function(){
+            var scheduler = new Hacademy.Scheduler(".app");
+        });        
+    </script>
+</head>
+<body>
+    <div class="app" data-row-header="1교시,2교시,3교시,4교시,5교시,6교시,7교시" data-column-header="월,화,수,목,금">
+        <div class="scheduler-task" data-row="1교시,2교시,3교시" data-column="월">생활의발견</div>
+        <div class="scheduler-task" data-row="1교시,2교시" data-column="화,목">도전! 요리왕</div>
+        <div class="scheduler-task" data-row="5교시,6교시,7교시" data-column="수,금">골프삼매경</div>
+    </div>
+</body>
+</html>
