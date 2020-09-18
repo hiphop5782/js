@@ -1,116 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
-        div {
-            border:1px dotted black;
-        }
         .hacademy-scheduler * {
             box-sizing: border-box;
         }
+
         .hacademy-scheduler {
             position: relative;
         }
-        .hacademy-scheduler > .scheduler-row-header,
-        .hacademy-scheduler > .scheduler-column-header,
-        .hacademy-scheduler > .scheduler-task  {
-            position:absolute;
+
+        .hacademy-scheduler>.scheduler-row-header,
+        .hacademy-scheduler>.scheduler-column-header,
+        .hacademy-scheduler>.scheduler-task {
+            position: absolute;
         }
-        .hacademy-scheduler > .scheduler-row-header > span,
-        .hacademy-scheduler > .scheduler-column-header > span,
-        .hacademy-scheduler > .scheduler-task > span {
+
+        .hacademy-scheduler>.scheduler-row-header.border,
+        .hacademy-scheduler>.scheduler-column-header.border,
+        .hacademy-scheduler>.scheduler-task.border {
+            border: 1px solid black;
+        }
+
+        .hacademy-scheduler>.scheduler-row-header>span,
+        .hacademy-scheduler>.scheduler-column-header>span,
+        .hacademy-scheduler>.scheduler-task>span {
             display: block;
-            position:absolute;
-            left:50%;
-            top:50%;
-            width:100%;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 100%;
             text-align: center;
             transform: translate(-50%, -50%);
-            white-space: nowrap;
+            white-space: pre;
             text-overflow: ellipsis;
+            overflow: hidden;
         }
-        
     </style>
     <script>
-        (function(window){
-            if(!window) throw "Window not defined";
+        (function (window) {
+            if (!window) throw "Window not defined";
 
             var defaultOptions = {
-                rowHeight:50,
+                rowHeight: 50,
+                merge: "column",
+                border: {
+                    rowHeader: false,
+                    columnHeader: false,
+                    task: true,
+                },
+                outline: null,
             };
 
             window.Hacademy = window.Hacademy || {};
-            window.Hacademy.Scheduler = function(el, options){
-                if(typeof el === "string"){
+            window.Hacademy.Scheduler = function (el, options) {
+                if (typeof el === "string") {
                     el = document.querySelector(el);
                 }
 
-                if(!el) throw "Target area not defined";
+                if (!el) throw "Target area not defined";
 
                 this.options = Object.assign({}, defaultOptions, options);
 
                 var rowHeader = el.dataset.rowHeader;
-                if(!rowHeader)
+                if (!rowHeader)
                     throw "data-row-header를 찾을 수 없습니다";
                 this.options.rowHeaders = rowHeader.split(",");
-                
+
                 var columnHeader = el.dataset.columnHeader;
-                if(!columnHeader)
-                throw "data-column-header를 찾을 수 없습니다";
+                if (!columnHeader)
+                    throw "data-column-header를 찾을 수 없습니다";
                 this.options.columnHeaders = columnHeader.split(",");
 
 
                 this.ui = {
-                    el : el,
+                    el: el,
                 };
 
                 this.initializeData();
                 this.initializeUI();
+                window.addEventListener("resize", () => {
+                    this.resizeUI();
+                });
             };
 
             var Scheduler = window.Hacademy.Scheduler;
 
-            Scheduler.prototype.initializeData = function(){
+            Scheduler.prototype.initializeData = function () {
                 //task 추가
                 var taskList = this.ui.el.querySelectorAll(".scheduler-task");
 
-                if(!this.options.tasks){
+                if (!this.options.tasks) {
                     this.options.tasks = new Array(this.options.rowHeaders.length);
-                    for(var i=0; i < this.options.tasks.length; i++){
+                    for (var i = 0; i < this.options.tasks.length; i++) {
                         this.options.tasks[i] = new Array(this.options.columnHeaders.length).fill(null);
                     }
                 }
-                
-                for(var i=0; i < taskList.length; i++){
+
+                for (var i = 0; i < taskList.length; i++) {
                     var row = taskList[i].dataset.row;
                     var column = taskList[i].dataset.column;
+                    var color = taskList[i].dataset.color || "black";
+                    var backgroundColor = taskList[i].dataset.backgroundColor || "transparent";
                     var text = taskList[i].textContent.trim();
                     this.ui.el.removeChild(taskList[i]);
 
-                    if(!row || !column) continue;
+                    if (!row || !column) continue;
 
                     row = row.split(",");
                     column = column.split(",");
 
                     //this.createTaskElement(row, column, text);
                     //데이터 먼저 배치(this.options.tasks - 2차원 배열)
-                    for(var r=0; r < row.length; r++){
-                        for(var c=0; c < column.length; c++){
+                    for (var r = 0; r < row.length; r++) {
+                        for (var c = 0; c < column.length; c++) {
                             var rowText = row[r].trim();
                             var columnText = column[c].trim();
                             var rowIdx = this.options.rowHeaders.indexOf(rowText);
                             var columnIdx = this.options.columnHeaders.indexOf(columnText);
 
-                            this.options.tasks[rowIdx][columnIdx] = text;
+                            this.options.tasks[rowIdx][columnIdx] = {
+                                text: text,
+                                color: color,
+                                backgroundColor: backgroundColor,
+                            };
                         }
                     }
                 }
             };
 
-            Scheduler.prototype.initializeUI = function(){
+            Scheduler.prototype.initializeUI = function () {
                 var rowCount = this.options.rowHeaders.length;
                 var columnCount = this.options.columnHeaders.length;
                 //메인 영역 크기 계산
@@ -128,8 +151,11 @@
                 this.options.realWidth = realWidth;
                 this.options.columnWidth = columnWidth;
 
-                for(var i=0; i < rowCount; i++){
+                for (var i = 0; i < rowCount; i++) {
                     var rowHeader = createElement("div", "scheduler-row-header");
+                    if (this.options.border.rowHeader) {
+                        rowHeader.classList.add("border");
+                    }
                     rowHeader.style.height = this.options.rowHeight + "px";
                     rowHeader.style.top = (i + 1) * this.options.rowHeight + "px";
                     rowHeader.style.left = 0;
@@ -143,8 +169,11 @@
 
                 //column header 추가
                 this.ui.columnHeaders = [];
-                for(var i=0; i < columnCount; i++){
+                for (var i = 0; i < columnCount; i++) {
                     var columnHeader = createElement("div", "scheduler-column-header");
+                    if (this.options.border.columnHeader) {
+                        columnHeader.classList.add("border");
+                    }
                     columnHeader.style.width = columnWidth + "px";
                     columnHeader.style.top = 0;
                     columnHeader.style.left = (i + 1) * columnWidth + "px";
@@ -160,71 +189,135 @@
                 this.mergeTaskElement();
             };
 
-            Scheduler.prototype.resizeUI = function(){
+            Scheduler.prototype.resizeUI = function () {
+                var rowCount = this.options.rowHeaders.length;
+                var columnCount = this.options.columnHeaders.length;
 
+                var realWidth = parseInt(window.getComputedStyle(this.ui.el).width);
+                var columnWidth = realWidth / (columnCount + 1);
+
+                this.options.realWidth = realWidth;
+                this.options.columnWidth = columnWidth;
+
+                for (var i = 0; i < rowCount; i++) {
+                    var rowHeader = this.ui.rowHeaders[i];
+                    rowHeader.style.top = (i + 1) * this.options.rowHeight + "px";
+                    rowHeader.style.left = 0;
+                    rowHeader.style.width = columnWidth + "px";
+                }
+
+                for (var i = 0; i < columnCount; i++) {
+                    var columnHeader = this.ui.columnHeaders[i];
+                    columnHeader.style.width = columnWidth + "px";
+                    columnHeader.style.top = 0;
+                    columnHeader.style.left = (i + 1) * columnWidth + "px";
+                }
+
+                var taskArray = this.ui.taskElements;
+
+                for (var i = 0; i < taskArray.length; i++) {
+                    for (var j = 0; j < taskArray[i].length; j++) {
+                        if (!taskArray[i][j]) continue;
+
+                        var taskElement = taskArray[i][j];
+                        if (this.options.merge == "column") {
+                            taskElement.style.width = this.options.columnWidth + "px";
+                            taskElement.style.height = parseInt(taskElement.getAttribute("data-merge") || 1) * this.options.rowHeight + "px";
+                        }
+                        else if (this.options.merge == "row") {
+                            taskElement.style.width = parseInt(taskElement.getAttribute("data-merge") || 1) * this.options.columnWidth + "px";
+                            taskElement.style.height = this.options.rowHeight + "px";
+                        }
+                        else {
+                            taskElement.style.width = this.options.columnWidth + "px";
+                            taskElement.style.height = this.options.rowHeight + "px";
+                        }
+                        taskElement.style.top = (i + 1) * this.options.rowHeight + "px";
+                        taskElement.style.left = (j + 1) * this.options.columnWidth + "px";
+                    }
+                }
             };
 
-            Scheduler.prototype.createTaskElement = function(){
-                if(!this.ui.taskElements){
+            Scheduler.prototype.createTaskElement = function () {
+                if (!this.ui.taskElements) {
                     this.ui.taskElements = new Array(this.options.rowHeaders.length);
-                    for(var i=0; i < this.options.tasks.length; i++){
+                    for (var i = 0; i < this.options.tasks.length; i++) {
                         this.ui.taskElements[i] = new Array(this.options.columnHeaders.length).fill(null);
                     }
                 }
 
                 var taskArray = this.options.tasks;
-                
-                for(var i=0; i < taskArray.length; i++){
-                    for(var j=0; j < taskArray[i].length; j++){
-                        if(!taskArray[i][j]) continue;
+
+                for (var i = 0; i < taskArray.length; i++) {
+                    for (var j = 0; j < taskArray[i].length; j++) {
+                        if (!taskArray[i][j]) continue;
 
                         var taskElement = createElement("div", "scheduler-task");
+                        if (this.options.border.task) {
+                            taskElement.classList.add("border");
+                        }
                         taskElement.style.width = this.options.columnWidth + "px";
                         taskElement.style.height = this.options.rowHeight + "px";
                         taskElement.style.top = (i + 1) * this.options.rowHeight + "px";
                         taskElement.style.left = (j + 1) * this.options.columnWidth + "px";
+                        taskElement.style.color = this.options.tasks[i][j].color;
+                        taskElement.style.backgroundColor = this.options.tasks[i][j].backgroundColor;
 
                         var span = createElement("span");
-                        span.textContent = this.options.tasks[i][j];
+                        span.textContent = this.options.tasks[i][j].text;
                         taskElement.appendChild(span);
-                        
+
                         this.ui.el.appendChild(taskElement);
                         this.ui.taskElements[i][j] = taskElement;
                     }
                 }
             };
 
-            Scheduler.prototype.mergeTaskElement = function(el){
-                if(!el){
-                    for(var i=0; i < this.options.tasks.length; i++){
-                        for(var j=0; j < this.options.tasks[i].length; j++){
-                            if(!this.options.tasks[i][j]) continue;
-                            var text = this.options.tasks[i][j];
-                            var rmin = i > 0 ? i - 1 : 0 , rmax = i < this.options.tasks.length - 1 ? i + 1 : this.options.tasks.length - 1;
-                            var cmin = j > 0 ? j - 1 : 0; cmax = i < this.options.tasks[i].length - 1 ? i + 1 : this.options.tasks.length[i] - 1;
+            Scheduler.prototype.mergeTaskElement = function () {
+                if (!this.options.merge || this.options.merge === "none") return;
 
-                            for(var r = rmin; r <= rmax; r++){
-                                for(var c = cmin; c <= cmax; c++){
-                                    if(i == r || j == c){
-                                        if(r != c){
-                                            if(text == this.options.tasks[r][c]){//(i, j)와 (r, c)는 병합 대상
-                                                console.log(i, j, r, c);
-                                                //this.ui.taskElements[r][c].style.display = "none";
-                                                this.ui.el.removeChild(this.ui.taskElements[r][c]);
-                                                this.ui.taskElements[r][c] = null;
-                                            }
-                                        }
-                                    }
-                                }
+                if (this.options.merge === "column") {
+                    var rowCount = this.options.rowHeaders.length;
+                    var columnCount = this.options.columnHeaders.length;
+                    for (var k = 0; k < columnCount; k++) {
+                        for (var i = rowCount - 1; i > 0; i--) {
+                            var up = this.options.tasks[i - 1][k];
+                            var down = this.options.tasks[i][k];
+                            if (up && down && up.text && down.text && up.text == down.text) {
+                                var upTask = this.ui.taskElements[i - 1][k];
+                                var downTask = this.ui.taskElements[i][k];
+                                var merge = parseInt(downTask.getAttribute("data-merge") || 1);
+                                upTask.setAttribute("data-merge", merge + 1);
+                                this.ui.el.removeChild(downTask);
                             }
                         }
                     }
                 }
+                else if (this.options.merge === "row") {
+                    var rowCount = this.options.rowHeaders.length;
+                    var columnCount = this.options.columnHeaders.length;
+
+                    for (var k = 0; k < rowCount; k++) {
+                        for (var i = columnCount - 1; i > 0; i--) {
+                            var left = this.options.tasks[k][i - 1];
+                            var right = this.options.tasks[k][i];
+                            if (left && right && left.text && right.text && left.text == right.text) {
+                                var leftTask = this.ui.taskElements[k][i - 1];
+                                var rightTask = this.ui.taskElements[k][i];
+                                var merge = parseInt(rightTask.getAttribute("data-merge") || 1);
+                                leftTask.setAttribute("data-merge", merge + 1);
+                                this.ui.el.removeChild(rightTask);
+                            }
+                        }
+                    }
+                }
+
+                this.resizeUI();
             };
 
             function createElement(type, className) {
                 var tag = document.createElement(type);
-                if(className){
+                if (className) {
                     tag.classList.add(className);
                 }
                 return tag;
@@ -232,16 +325,21 @@
         })(window);
     </script>
     <script>
-        window.addEventListener("load", function(){
+        window.addEventListener("load", function () {
             var scheduler = new Hacademy.Scheduler(".app");
         });        
     </script>
 </head>
+
 <body>
     <div class="app" data-row-header="1교시,2교시,3교시,4교시,5교시,6교시,7교시" data-column-header="월,화,수,목,금">
-        <div class="scheduler-task" data-row="1교시,2교시,3교시" data-column="월">생활의발견</div>
-        <div class="scheduler-task" data-row="1교시,2교시" data-column="화,목">도전! 요리왕</div>
-        <div class="scheduler-task" data-row="5교시,6교시,7교시" data-column="수,금">골프삼매경</div>
+        <div class="scheduler-task" data-row="1교시,2교시,3교시" data-column="월" data-background-color="#55efc4">생활의발견</div>
+        <div class="scheduler-task" data-row="5교시,6교시" data-column="월" data-background-color="#55efc4">생활의발견</div>
+        <div class="scheduler-task" data-row="1교시,2교시" data-column="화,목" data-background-color="#ffeaa7">도전! 요리왕</div>
+        <div class="scheduler-task" data-row="5교시,6교시,7교시" data-column="수,목" data-background-color="#74b9ff">골프삼매경</div>
+        <div class="scheduler-task" data-row="2교시,3교시,5교시" data-column="금" data-color="#2d3436"
+            data-background-color="#81ecec">피구왕통키</div>
     </div>
 </body>
+
 </html>

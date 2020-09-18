@@ -1,0 +1,31 @@
+.hacademy-scheduler * {
+    box-sizing: border-box;
+    border-collapse: collapse;
+}
+.hacademy-scheduler {
+    position: relative;
+}
+.hacademy-scheduler > .scheduler-row-header,
+.hacademy-scheduler > .scheduler-column-header,
+.hacademy-scheduler > .scheduler-task  {
+    position:absolute;
+}
+.hacademy-scheduler > .scheduler-row-header.border,
+.hacademy-scheduler > .scheduler-column-header.border,
+.hacademy-scheduler > .scheduler-task.border  {
+    border:1px solid black;
+}
+.hacademy-scheduler > .scheduler-row-header > span,
+.hacademy-scheduler > .scheduler-column-header > span,
+.hacademy-scheduler > .scheduler-task > span {
+    display: block;
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:100%;
+    text-align: center;
+    transform: translate(-50%, -50%);
+    white-space: pre;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}

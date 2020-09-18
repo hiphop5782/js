@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="./hacademy-schedule.css">
+    <script src="./hacademy-schedule.js"></script>
+    <script>
+        window.addEventListener("load", function(){
+            var scheduler = new Hacademy.Scheduler(".app", {
+                outline:"3px solid black",
+                rowHeight:75,
+                border:{
+                    columnHeader:true,
+                    rowHeader:true,
+                    task:true,
+                }
+            });
+        });        
+    </script>
+</head>
+<body>
+    <div class="app" data-row-header="1교시,2교시,3교시,4교시,5교시,6교시,7교시" data-column-header="월,화,수,목,금">
+        <div class="scheduler-task" data-row="1교시,2교시,3교시" data-column="월" data-background-color="#55efc4">생활의발견</div>
+        <div class="scheduler-task" data-row="5교시,6교시" data-column="월" data-background-color="#55efc4">생활의발견</div>
+        <div class="scheduler-task" data-row="1교시,2교시" data-column="화,목" data-background-color="#ffeaa7">도전! 요리왕</div>
+        <div class="scheduler-task" data-row="5교시,6교시,7교시" data-column="수,목" data-background-color="#74b9ff">골프삼매경</div>
+        <div class="scheduler-task" data-row="2교시,3교시,5교시" data-column="금" data-color="#2d3436" data-background-color="#81ecec">피구왕통키</div>
+    </div>
+</body>
+</html>
