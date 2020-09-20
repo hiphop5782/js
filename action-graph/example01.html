@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Action Graph</title>
+    <style>
+        *{
+            box-sizing: border-box;
+        }
+        html, body{
+            margin:0;
+            padding:0;
+            width:100%;
+            height:100%;
+        }
+    </style>
+    
+
+    <script>
+        function Rect(x, y, w, h, color, event){
+            this.x = x;
+            this.y = y;
+            this.width = w;
+            this.height = h;
+            this.color = color;
+            this.event = event;
+        }
+    </script>
+    <script>
+        function resizer(e){
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            drawObject();
+        }
+        function mouseTracker(e){
+            var list = window.graphicData.objects;
+            for(var i=0; i<list.length; i++){
+                graphics2d.rect(list[i].x, list[i].y, list[i].width, list[i].height);
+                if(graphics2d.isPointInPath(e.x, e.y)){
+                    graphics2d.strokeStyle = "black";
+                }
+                else{
+                    graphics2d.strokeStyle = list[i].color;
+                }
+                graphics2d.stroke();
+            }
+        }
+    </script>
+    <script>
+        function createUtilities(){
+            window.canvas = document.querySelector("#canvas");
+            window.graphics2d = canvas.getContext("2d");
+            window.graphicData = {
+                title:"test title",
+                objects:[],
+            };
+        }
+
+        function drawRect(){
+            graphicData.objects.push(new Rect(10, 10, 50, 50, "red", function(){console.log("click")}));
+        }
+
+        function drawObject(){
+            //if(!window.graphicsData) return;
+            var list = window.graphicData.objects;
+            for(var i=0; i<list.length; i++){
+                graphics2d.strokeStyle = list[i].color;
+                graphics2d.strokeRect(list[i].x, list[i].y, list[i].width, list[i].height);
+            }
+        }
+    </script>
+    <script>
+        window.addEventListener("resize", resizer);
+        
+        window.addEventListener("load", function(){
+            document.querySelector("#canvas").addEventListener("mousemove", mouseTracker);
+            createUtilities();
+            drawRect();
+            drawObject();
+        });
+    </script>
+</head>
+<body>
+    <canvas id="canvas">
+        Canvas not support this browser
+    </canvas>
+</body>
+</html>
