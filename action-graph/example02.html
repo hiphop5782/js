@@ -37,7 +37,8 @@
 
             var defaultShapeStyle = {
                 color:"black",
-                highlightColor:"red",
+                selectedColor:"red",
+                hoverColor:"orange",
             };
 
             window.Hacademy = window.Hacademy || {};
@@ -97,6 +98,11 @@
             //initializer
             Sketchbook.prototype.initializeUI = function(){
                 this.setCanvasSize();
+                this.initializePopup();
+            };
+            Sketchbook.prototype.initializePopup = function(){
+                var popupDiv = createElement("div", "popup-wrapper");
+                
             };
             Sketchbook.prototype.initializeEvent = function(){
                 //mouse move listener
@@ -193,11 +199,13 @@
                 if(this.mouse.button !== 0) return;
                 if(!this.memory.list || !this.memory.list.length) return;
 
+
                 var shape = this.memory.list[this.memory.index];
-                if(!shape || !shape.target) return;
+                if(!shape || !shape.selected) return;
 
                 shape.x += this.mouse.getXgap();
                 shape.y += this.mouse.getYgap();
+
             };
             Sketchbook.prototype.DoSomethingWhenMouseMove = function(e){
                 this.HoverProcess();
@@ -205,10 +213,14 @@
 
             //drawing function
             Sketchbook.prototype.DrawScreen = function(){
-                this.ui.pen.clearRect(0, 0, this.ui.el.width, this.ui.el.height);
+                this.ClearScreen();
                 for(var i=0; i < this.data.length; i++){
                     this.data[i].DrawSelf(this.ui.pen);
                 }
+            };
+            Sketchbook.prototype.ClearScreen = function(){
+                //this.ui.pen.clearRect(0, 0, this.ui.el.width, this.ui.el.height);
+                this.ui.el.width = this.ui.el.width;
             };
 
             //util function
@@ -224,6 +236,9 @@
                     if(this.data[i].IsOnBorder(this.ui.pen, this.mouse.current.x, this.mouse.current.y)){
                         relativeList.push(this.data[i]);
                     }
+                    else if(this.data[i].IsOver(this.ui.pen, this.mouse.current.x, this.mouse.current.y)){
+                        relativeList.push(this.data[i]);
+                    }
                     else{
                         this.data[i].SetHover(false);
                         this.ui.el.style.cursor = "auto";
@@ -233,30 +248,30 @@
                 if(!this.memory.list || !this.memory.list.length) return;
 
                 this.memory.list[this.memory.index].SetHover(true);
-                this.ui.el.style.cursor = "col-resize";
+                this.ui.el.style.cursor = "pointer";
             };
 
             Sketchbook.prototype.SelectProcess = function(){
                 var relativeList = [];
                 for(var i=0; i < this.data.length; i++){
-                    if(this.data[i].IsReative(this.ui.pen, this.mouse.current.x, this.mouse.current.y)){
+                    if(this.data[i].IsOver(this.ui.pen, this.mouse.current.x, this.mouse.current.y)){
                         relativeList.push(this.data[i]);
                     }
                     else{
-                        this.data[i].SetTarget(false);
+                        this.data[i].SetSelected(false);
                     }
                 }
                 this.memory.list = relativeList;
                 if(!this.memory.list || !this.memory.list.length) return;
 
-                this.memory.list[this.memory.index].SetTarget(true);
+                this.memory.list[this.memory.index].SetSelected(true);
             };
 
             //search path
             Sketchbook.prototype.GetRelativeShape = function(){
                 var find = [];
                 for(var i=0; i < this.data.length; i++){
-                    if(this.data[i].IsReative(this.ui.pen, this.mouse.current.x, this.mouse.current.y)){
+                    if(this.data[i].IsOver(this.ui.pen, this.mouse.current.x, this.mouse.current.y)){
                         find.push(this.data[i]);
                     }
                 }
@@ -280,13 +295,16 @@
                 this.y = y;
                 this.width = w;
                 this.height = h;
-                this.target = false;
+                this.selected = false;
                 this.hover = false;
                 this.style = Object.assign({}, defaultShapeStyle, style);
                 this.DrawSelf = function(pen){
                     pen.beginPath();
-                    if(this.target){
-                        pen.strokeStyle = this.style.highlightColor;
+                    if(this.selected){
+                        pen.strokeStyle = this.style.selectedColor;
+                    }
+                    else if(this.hover){
+                        pen.strokeStyle = this.style.hoverColor;
                     }
                     else{
                         pen.strokeStyle = this.style.color;
@@ -294,7 +312,7 @@
                     pen.strokeRect(this.x, this.y, this.width, this.height);
                     pen.closePath();
                 };
-                this.IsReative = function(pen, px, py){
+                this.IsOver = function(pen, px, py){
                     pen.beginPath();
                     pen.rect(this.x, this.y, this.width, this.height);
                     pen.closePath();
@@ -306,8 +324,8 @@
                     pen.closePath();
                     return pen.isPointInStroke(px, py);
                 }
-                this.SetTarget = function(status){
-                    this.target = status;
+                this.SetSelected = function(selected){
+                    this.selected = selected;
                 }
                 this.SetHover = function(hover){
                     this.hover = hover;
@@ -334,6 +352,14 @@
             Sketchbook.prototype.finish = function(){
                 this.options.flag = false;
             };
+
+            function createElement(type, className) {
+                var tag = document.createElement(type);
+                if(className){
+                    tag.classList.add(className);
+                }
+                return tag;
+            }
         })(window);
     </script>
     <script>
@@ -344,6 +370,7 @@
                 document.querySelector("#print").textContent = this.toJson(true);
             });
             canvas.DrawRect(50, 50, 50, 50);
+            canvas.DrawRect(200, 50, 50, 50);
         });
     </script>
 </head>
