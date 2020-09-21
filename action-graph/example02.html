@@ -200,7 +200,7 @@
                 shape.y += this.mouse.getYgap();
             };
             Sketchbook.prototype.DoSomethingWhenMouseMove = function(e){
-                //this.HoverProcess();
+                this.HoverProcess();
             };
 
             //drawing function
@@ -221,19 +221,19 @@
             Sketchbook.prototype.HoverProcess = function(){
                 var relativeList = [];
                 for(var i=0; i < this.data.length; i++){
-                    if(this.data[i].IsReative(this.ui.pen, this.mouse.current.x, this.mouse.current.y)){
+                    if(this.data[i].IsOnBorder(this.ui.pen, this.mouse.current.x, this.mouse.current.y)){
                         relativeList.push(this.data[i]);
                     }
                     else{
-                        this.data[i].SetTarget(false);
+                        this.data[i].SetHover(false);
                         this.ui.el.style.cursor = "auto";
                     }
                 }
                 this.memory.list = relativeList;
                 if(!this.memory.list || !this.memory.list.length) return;
 
-                this.memory.list[this.memory.index].SetTarget(true);
-                this.ui.el.style.cursor = "pointer";
+                this.memory.list[this.memory.index].SetHover(true);
+                this.ui.el.style.cursor = "col-resize";
             };
 
             Sketchbook.prototype.SelectProcess = function(){
@@ -244,14 +244,12 @@
                     }
                     else{
                         this.data[i].SetTarget(false);
-                        this.ui.el.style.cursor = "auto";
                     }
                 }
                 this.memory.list = relativeList;
                 if(!this.memory.list || !this.memory.list.length) return;
 
                 this.memory.list[this.memory.index].SetTarget(true);
-                this.ui.el.style.cursor = "pointer";
             };
 
             //search path
@@ -283,6 +281,7 @@
                 this.width = w;
                 this.height = h;
                 this.target = false;
+                this.hover = false;
                 this.style = Object.assign({}, defaultShapeStyle, style);
                 this.DrawSelf = function(pen){
                     pen.beginPath();
@@ -301,8 +300,17 @@
                     pen.closePath();
                     return pen.isPointInPath(px, py);
                 };
+                this.IsOnBorder = function(pen, px, py){
+                    pen.beginPath();
+                    pen.rect(this.x, this.y, this.width, this.height);
+                    pen.closePath();
+                    return pen.isPointInStroke(px, py);
+                }
                 this.SetTarget = function(status){
                     this.target = status;
+                }
+                this.SetHover = function(hover){
+                    this.hover = hover;
                 }
             }
 
@@ -335,6 +343,7 @@
             canvas.addPrinter(function(){
                 document.querySelector("#print").textContent = this.toJson(true);
             });
+            canvas.DrawRect(50, 50, 50, 50);
         });
     </script>
 </head>
