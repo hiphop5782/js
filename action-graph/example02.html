@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        html, body{
+            margin:0;
+            padding:0;
+            width:100%;
+            height:100%;
+        }
+        .test-wrapper {
+            display: flex;
+            height:400xp;
+        }
+        .test-wrapper > *{
+            width:50%;
+        }
+        .test-wrapper canvas{
+            border:1px solid black;
+        }
+
+    </style>
+    <script>
+        (function(window){
+            if(!window) throw "Window not defined";
+
+            var defaultOptions = {
+                fullScreen:true,
+                frame:24,
+            };
+
+            var defaultShapeStyle = {
+                color:"black",
+                highlightColor:"red",
+            };
+
+            window.Hacademy = window.Hacademy || {};
+            window.Hacademy.Sketchbook = function(el, options, callback){
+                if(typeof el === "string"){
+                    el = document.querySelector(el);
+                }
+                if(!el || el.tagName !== "CANVAS"){
+                    throw "cannot find target canvas";
+                }
+
+                this.options = Object.assign({}, defaultOptions, options);
+
+                //ui object
+                this.ui = {
+                    el:el,
+                    pen:el.getContext("2d"),
+                };
+                
+                //mouse object
+                this.mouse = {
+                    before:{x:null,y:null},
+                    current:{x:null,y:null},
+                    button:null,
+                    press:false,
+                    isDrag:function(){
+                        return this.button == 0 && this.press;
+                    },
+                    getXgap:function(){
+                        return this.current.x - this.before.x;
+                    },
+                    getYgap:function(){
+                        return this.current.y - this.before.y;
+                    },
+                };
+
+                //memory object
+                this.memory = {
+                    index:0,
+                    list:[],
+                };
+
+                this.data = [];
+
+                this.initializeUI();
+                this.initializeEvent();
+
+                this.start();
+
+                if(callback && typeof callback === "function"){
+                    callback.call(this);
+                }
+            };
+
+            var Sketchbook = window.Hacademy.Sketchbook;
+            
+            //initializer
+            Sketchbook.prototype.initializeUI = function(){
+                this.setCanvasSize();
+            };
+            Sketchbook.prototype.initializeEvent = function(){
+                //mouse move listener
+                this.ui.el.addEventListener("mousemove", (e)=>{
+                    Sketchbook.prototype.MouseMoveTracker.call(this, e);
+                });
+                //mouse down listener
+                this.ui.el.addEventListener("mousedown", (e)=>{
+                    Sketchbook.prototype.MouseDownTracker.call(this, e);
+                })
+                //mouse up listener
+                this.ui.el.addEventListener("mouseup", (e)=>{
+                    Sketchbook.prototype.MouseUpTracker.call(this, e);
+                });
+
+                this.ui.el.addEventListener("click", (e)=>{
+                    this.MouseClickTracker(e);
+                });
+
+                //resize event whe full screen
+                if(this.options.fullScreen){
+                    window.addEventListener("resize", ()=>{
+                        this.setCanvasSize.call(this);
+                    });
+                }
+
+                //contextmenu listener
+                this.ui.el.addEventListener("contextmenu", function(e){
+                    e.preventDefault();
+                    
+                });
+            };
+
+            Sketchbook.prototype.setCanvasSize = function(){
+                this.setCanvasWidth();
+                //this.setCanvasHeight();
+            };
+            Sketchbook.prototype.setCanvasWidth = function(){
+                var width = this.ui.el.parentElement.innerWidth ||  parseInt(window.getComputedStyle(this.ui.el.parentElement).width);
+                this.ui.el.width = width;
+            };
+            Sketchbook.prototype.setCanvasHeight = function(){
+                var height =  this.ui.el.parentElement.innerHeight || parseInt(window.getComputedStyle(this.ui.el.parentElement).height);
+                this.ui.el.height = height;
+            };
+
+            //event tracker
+            Sketchbook.prototype.MouseDownTracker = function(e){
+                this.mouse.before.x = this.mouse.current.x;
+                this.mouse.before.y = this.mouse.current.y;
+                this.mouse.current.x = e.clientX - this.ui.el.getBoundingClientRect().left;
+                this.mouse.current.y = e.clientY - this.ui.el.getBoundingClientRect().top;
+                this.mouse.button = e.button;
+                this.mouse.press = true;
+            };
+            Sketchbook.prototype.MouseUpTracker = function(e){
+                this.mouse.before.x = this.mouse.current.x;
+                this.mouse.before.y = this.mouse.current.y;
+                this.mouse.current.x = e.clientX - this.ui.el.getBoundingClientRect().left;
+                this.mouse.current.y = e.clientY - this.ui.el.getBoundingClientRect().top;
+                this.mouse.button = e.button;
+                this.mouse.press = false;
+
+                if(e.button === 2){
+                    console.log("open popup menu");
+                }
+            };
+            Sketchbook.prototype.MouseMoveTracker = function(e){
+                this.mouse.before.x = this.mouse.current.x;
+                this.mouse.before.y = this.mouse.current.y;
+                this.mouse.current.x = e.clientX - this.ui.el.getBoundingClientRect().left;
+                this.mouse.current.y = e.clientY - this.ui.el.getBoundingClientRect().top;
+
+                if(this.mouse.isDrag()) {
+                    this.DoSomethingWhenMouseDrag(e);
+                }
+                else{
+                    this.DoSomethingWhenMouseMove(e);
+                }
+            };
+            Sketchbook.prototype.MouseClickTracker = function(e){
+                if(e.button === 0){
+                    this.SelectProcess();
+                }
+            };
+
+            Sketchbook.prototype.addPrinter = function(printer){
+                if(!printer || typeof printer !== "function") return;
+                this.printer = printer;
+            };
+
+            //event action
+            Sketchbook.prototype.DoSomethingWhenMouseDrag = function(e){
+                if(this.mouse.button !== 0) return;
+                if(!this.memory.list || !this.memory.list.length) return;
+
+                var shape = this.memory.list[this.memory.index];
+                if(!shape || !shape.target) return;
+
+                shape.x += this.mouse.getXgap();
+                shape.y += this.mouse.getYgap();
+            };
+            Sketchbook.prototype.DoSomethingWhenMouseMove = function(e){
+                //this.HoverProcess();
+            };
+
+            //drawing function
+            Sketchbook.prototype.DrawScreen = function(){
+                this.ui.pen.clearRect(0, 0, this.ui.el.width, this.ui.el.height);
+                for(var i=0; i < this.data.length; i++){
+                    this.data[i].DrawSelf(this.ui.pen);
+                }
+            };
+
+            //util function
+            Sketchbook.prototype.DrawRect = function(x, y, w, h, style){
+                var rect = new Sketchbook.Rect(x, y, w, h, style);
+                this.data.push(rect);
+            };
+
+            //hover process
+            Sketchbook.prototype.HoverProcess = function(){
+                var relativeList = [];
+                for(var i=0; i < this.data.length; i++){
+                    if(this.data[i].IsReative(this.ui.pen, this.mouse.current.x, this.mouse.current.y)){
+                        relativeList.push(this.data[i]);
+                    }
+                    else{
+                        this.data[i].SetTarget(false);
+                        this.ui.el.style.cursor = "auto";
+                    }
+                }
+                this.memory.list = relativeList;
+                if(!this.memory.list || !this.memory.list.length) return;
+
+                this.memory.list[this.memory.index].SetTarget(true);
+                this.ui.el.style.cursor = "pointer";
+            };
+
+            Sketchbook.prototype.SelectProcess = function(){
+                var relativeList = [];
+                for(var i=0; i < this.data.length; i++){
+                    if(this.data[i].IsReative(this.ui.pen, this.mouse.current.x, this.mouse.current.y)){
+                        relativeList.push(this.data[i]);
+                    }
+                    else{
+                        this.data[i].SetTarget(false);
+                        this.ui.el.style.cursor = "auto";
+                    }
+                }
+                this.memory.list = relativeList;
+                if(!this.memory.list || !this.memory.list.length) return;
+
+                this.memory.list[this.memory.index].SetTarget(true);
+                this.ui.el.style.cursor = "pointer";
+            };
+
+            //search path
+            Sketchbook.prototype.GetRelativeShape = function(){
+                var find = [];
+                for(var i=0; i < this.data.length; i++){
+                    if(this.data[i].IsReative(this.ui.pen, this.mouse.current.x, this.mouse.current.y)){
+                        find.push(this.data[i]);
+                    }
+                }
+                return find;
+            };
+
+            //get path(JSON)
+            Sketchbook.prototype.toJson = function(beautify){
+                if(beautify === true){
+                    return JSON.stringify(this.data, null, 4);
+                }
+                else{
+                    return JSON.stringify(this.data);
+                }
+            };
+            
+
+            //Shape
+            Sketchbook.Rect = function(x, y, w, h, style){
+                this.x = x;
+                this.y = y;
+                this.width = w;
+                this.height = h;
+                this.target = false;
+                this.style = Object.assign({}, defaultShapeStyle, style);
+                this.DrawSelf = function(pen){
+                    pen.beginPath();
+                    if(this.target){
+                        pen.strokeStyle = this.style.highlightColor;
+                    }
+                    else{
+                        pen.strokeStyle = this.style.color;
+                    }
+                    pen.strokeRect(this.x, this.y, this.width, this.height);
+                    pen.closePath();
+                };
+                this.IsReative = function(pen, px, py){
+                    pen.beginPath();
+                    pen.rect(this.x, this.y, this.width, this.height);
+                    pen.closePath();
+                    return pen.isPointInPath(px, py);
+                };
+                this.SetTarget = function(status){
+                    this.target = status;
+                }
+            }
+
+            //auto animate
+            Sketchbook.prototype.start = function(){
+                this.options.flag = this.options.flag || true;
+                var interval = 1000/this.options.frame;
+                var proc = ()=>{
+                    this.DrawScreen();
+                    
+                    if(this.printer){
+                        this.printer();
+                    }
+
+                    if(this.options.flag){
+                        setTimeout(proc, interval);
+                    }
+                };
+                proc();
+            };
+            Sketchbook.prototype.finish = function(){
+                this.options.flag = false;
+            };
+        })(window);
+    </script>
+    <script>
+        var canvas;
+        window.addEventListener("load", function(){
+            canvas = new Hacademy.Sketchbook("#canvas");
+            canvas.addPrinter(function(){
+                document.querySelector("#print").textContent = this.toJson(true);
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="test-wrapper">
+        <div><canvas id="canvas" height="300"></canvas></div>
+        <pre id="print"></pre>
+    </div>
+</body>
+</html>
