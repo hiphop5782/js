@@ -33,7 +33,7 @@
             canvas.height = window.innerHeight;
             drawObject();
         }
-        function mouseTracker(e){
+        function MouseTracker(e){
             var list = window.graphicData.objects;
             for(var i=0; i<list.length; i++){
                 graphics2d.rect(list[i].x, list[i].y, list[i].width, list[i].height);
@@ -45,6 +45,9 @@
                 }
                 graphics2d.stroke();
             }
+        }
+        function MouseDragTracker(e){
+            console.log(e.x, e.y);
         }
     </script>
     <script>
@@ -74,7 +77,10 @@
         window.addEventListener("resize", resizer);
         
         window.addEventListener("load", function(){
-            document.querySelector("#canvas").addEventListener("mousemove", mouseTracker);
+            var canvas = document.querySelector("#canvas");
+            canvas.addEventListener("mousemove", MouseTracker);
+            canvas.addEventListener("drag", MouseDragTracker);
+            
             createUtilities();
             drawRect();
             drawObject();
