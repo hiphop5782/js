@@ -48,12 +48,9 @@
         function resizer(e){
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            drawObject();
+            drawScreen();
         }
         function MouseTracker(e){
-            mouseStatus.x = e.x;
-            mouseStatus.y = e.y;
-
             //drag status
             if(mouseStatus.isLeftDrag()){
                 MouseDragTracker(e);
@@ -61,10 +58,20 @@
             else{
                 MouseMoveTracker(e);
             }
+
+            //change mouse position
+            mouseStatus.x = e.x;
+            mouseStatus.y = e.y;
+
+            clearScreen();
+            drawScreen();
         }
         function MouseDragTracker(e){
-            selectedObject.getSelecedObject().x = e.x;
-            selectedObject.getSelecedObject().y = e.y;
+            var obj = selectedObject.getSelecedObject();
+            if(!obj) return;
+
+            obj.x += e.x - mouseStatus.x;
+            obj.y += e.y - mouseStatus.y;
         }
         function MouseMoveTracker(e){
             selectedObject.list = getObject(e.x, e.y);
@@ -76,6 +83,10 @@
         function MouseUpTracker(e){
             mouseStatus.button = e.button;
             mouseStatus.press = false;
+        }
+        function MouseClickTracker(e){
+            //console.log(mouseStatus);
+            //drawRect(e.x, e.y, 50, 50, "black", function(){});
         }
     </script>
     <script>
@@ -91,15 +102,17 @@
         function clearScreen(){
             graphics2d.clearRect(0, 0, canvas.width, canvas.height);
         }
-        function drawRect(){
-            graphicData.objects.push(new Rect(10, 10, 50, 50, "red", function(){console.log("click")}));
+        function drawRect(x, y, w, h, color, click){
+            graphicData.objects.push(new Rect(x, y, w, h, color, click));
         }
 
         function getObject(x, y){
             var list = window.graphicData.objects;
             var find = [];
             for(var i=0; i<list.length; i++){
+                graphics2d.beginPath();
                 graphics2d.rect(list[i].x, list[i].y, list[i].width, list[i].height);
+                graphics2d.closePath();
                 if(graphics2d.isPointInPath(x, y)){
                     find.push(list[i]);    
                 }
@@ -108,7 +121,7 @@
             return find;
         }
 
-        function drawObject(){
+        function drawScreen(){
             //if(!window.graphicsData) return;
             var list = window.graphicData.objects;
             for(var i=0; i<list.length; i++){
@@ -126,8 +139,10 @@
             canvas.addEventListener("mousemove", MouseTracker);
             canvas.addEventListener("mousedown", MouseDownTracker);
             canvas.addEventListener("mouseup", MouseUpTracker);
+            canvas.addEventListener("click", MouseClickTracker);
             
             createUtilities();
+            drawRect();
             drawRect();
             resizer();
         });
