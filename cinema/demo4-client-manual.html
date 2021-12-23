@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>영화관 좌석 배치</title>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/hiphop5782/js@0.0.15/cinema/hacademy-cinema.css">
+    <link rel="stylesheet" type="text/css" href="./hacademy-cinema.css">
     <style>
         *{
             box-sizing: border-box;
@@ -21,7 +21,7 @@
             padding:0.5rem;
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/gh/hiphop5782/js@0.0.15/cinema/hacademy-cinema.js"></script>
+    <script src="./hacademy-cinema.js"></script>
     <script>
         window.addEventListener("load", function(){
             var cinema = new Hacademy.Reservation("#cinema");
@@ -36,9 +36,9 @@
     </script>
 </head>
 <body>
-    <h1 align="center">Demo 4 : Client manual single mode</h1>
+    <h1 align="center">Demo 3 : Client manual mode</h1>
     <ul>
-        <li>사용자가 좌석을 하나만 선택하는 경우</li>
+        <li>관리자 모드에서 만들어진 좌석을 표시하고 선택하는 경우</li>
         <li>.cinema-seat-area에 data-mode="client"로 설정하거나 미작성 시 사용자 모드 설정</li>
         <li>.cinema-seat-area에 data-fill="manual"로 설정하여 수동 모드 설정</li>
         <li>좌석번호를 표시하고 싶은 경우 .cinema-seat-area에 data-seatno="visible"로 설정</li>
@@ -46,15 +46,14 @@
         <li>좌석번호는 현재 임의의 수정이 불가</li>
         <li>좌석 열 수를 벗어나는 좌석은 삭제됨</li>
         <li>좌석 칸 수를 벗어나는 좌석은 삭제됨</li>
-        <li>한 좌석씩만 선택되게 하고 싶으면 .cinema-seat-area에 data-choice="single"로 설정(기본값 multiple)</li>
     </ul>
     <div class="float-box">
         <div>
-            <form action="example.html" method="get">
+            <form method="get">
 
                 <div id="cinema" class="cinema-wrap" data-name="seat">
                     <div class="cinema-screen">상단 구조물 또는 제목 영역</div>
-                    <div class="cinema-seat-area" data-rowsize="3" data-colsize="5" data-mode="client" data-fill="manual"" data-seatno="visible" data-choice="single">
+                    <div class="cinema-seat-area" data-rowsize="3" data-colsize="5" data-mode="client" data-fill="manual"" data-seatno="visible">
                         <div class="cinema-seat" data-row="1" data-col="1" data-direction="right"></div>
                         <div class="cinema-seat" data-row="1" data-col="2" data-state="space"></div>
                         <div class="cinema-seat" data-row="1" data-col="3" data-state="space"></div>

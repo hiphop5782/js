@@ -112,7 +112,8 @@
         });
         var seatArea = this.options.seatArea;
         var seatList = seatArea.querySelectorAll(".cinema-seat");
-        for(var i=0; i < seatList.length; i++){
+        var rotateMode = seatArea.dataset.rotate === undefined ? false : true;
+        for(var i=0; rotateMode && i < seatList.length; i++){
             seatList[i].addEventListener("contextmenu", function(e){
                 e.preventDefault();
                 app.changeUnit(this, "direction");
@@ -137,7 +138,7 @@
 
         var params = new URLSearchParams();
         for(var i=0; i<checkedList.length; i++){
-            var unit = checkedList[i].querySelector("input[type=hidden]");
+            var unit = checkedList[i].querySelector("input[type=checkbox]");
             params.append(unit.name, unit.value);
         }
         return params.toString();
@@ -209,6 +210,7 @@
             seat.addEventListener("click", function(e){
                 var isActive = this.classList.contains("active");
                 app.changeUnit(this, isActive?"normal":"active");
+                this.querySelector("input[type=checkbox]").checked = !isActive;
             });
             return seat;
         }
@@ -216,6 +218,7 @@
             var seat = this.createUnit();
             seat.addEventListener("click", function(e){
                 var isActive = this.classList.contains("active");
+                this.querySelector("input[type=checkbox]").checked = !isActive;
                 app.changeUnit(this, isActive?"normal":"active");
             });
             return seat;
@@ -256,8 +259,9 @@
 
     w.Hacademy.Reservation.prototype.createHiddenInput = function(){
         var hidden = document.createElement("input");
-        hidden.setAttribute("type", "hidden");
+        hidden.setAttribute("type", "checkbox");
         hidden.setAttribute("name", this.options.sendName);
+        hidden.style.display="none";
         return hidden;
     };
 
