@@ -138,7 +138,7 @@
 
         var params = new URLSearchParams();
         for(var i=0; i<checkedList.length; i++){
-            var unit = checkedList[i].querySelector("input[type=checkbox]");
+            var unit = checkedList[i].querySelector("input[name=seat]");
             params.append(unit.name, unit.value);
         }
         return params.toString();
@@ -210,7 +210,9 @@
             seat.addEventListener("click", function(e){
                 var isActive = this.classList.contains("active");
                 app.changeUnit(this, isActive?"normal":"active");
-                this.querySelector("input[type=checkbox]").checked = !isActive;
+                if(app.options.mode === 'client'){
+                    this.querySelector("input[name=seat]").checked = !isActive;
+                }
             });
             return seat;
         }
@@ -218,8 +220,10 @@
             var seat = this.createUnit();
             seat.addEventListener("click", function(e){
                 var isActive = this.classList.contains("active");
-                this.querySelector("input[type=checkbox]").checked = !isActive;
                 app.changeUnit(this, isActive?"normal":"active");
+                if(app.options.mode === 'client'){
+                    this.querySelector("input[name=seat]").checked = !isActive;
+                }
             });
             return seat;
         }
@@ -259,7 +263,12 @@
 
     w.Hacademy.Reservation.prototype.createHiddenInput = function(){
         var hidden = document.createElement("input");
-        hidden.setAttribute("type", "checkbox");
+        if(this.options.mode === 'manager'){
+            hidden.setAttribute("type", "hidden");
+        }
+        else {
+            hidden.setAttribute("type", "checkbox");
+        }
         hidden.setAttribute("name", this.options.sendName);
         hidden.style.display="none";
         return hidden;
