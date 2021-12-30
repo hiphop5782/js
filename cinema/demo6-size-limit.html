@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>영화관 좌석 배치</title>
+    <link rel="stylesheet" type="text/css" href="./hacademy-cinema.css">
+    <style>
+        *{
+            box-sizing: border-box;
+        }
+        .float-box > div{
+            float:left;
+            width:50%;
+        }
+        .float-box::after{
+            content:"";
+            display: block;
+            clear:both;
+        }
+        .float-box > .result {
+            padding:0.5rem;
+        }
+    </style>
+    <script src="./hacademy-cinema.js"></script>
+    <script>
+        window.addEventListener("load", function(){
+            var cinema = new Hacademy.Reservation("#cinema");
+            cinema.addChangeListener(function(seat){
+                print(this);
+            });
+            print(cinema);
+            function print(app){
+                document.querySelector(".result").textContent = "현재 선택된 좌석 수 : " + app.getSelectedCount();
+            }
+        });
+    </script>
+</head>
+<body>
+    <h1 align="center">Demo 6 : 선택된 좌석 수 확인</h1>
+    <ul>
+        <li>선택된 좌석 수를 확인하고 싶을 경우 cinema의 개수 확인 명령을 사용</li>
+        <li>.addChangeListener()를 설정하여 변경 시 처리할 내용을 작성</li>
+        <li>변경 시 처리할 내용 안에서 .getSelectedCount()를 호출하여 선택된 좌석 수를 확인</li>
+    </ul>
+    <div class="float-box">
+        <div>
+            <form method="get">
+                <div id="cinema" class="cinema-wrap" data-name="seat">
+                    <div class="cinema-seat-area" data-rowsize="3" data-colsize="5" data-mode="client" data-fill="manual"" data-seatno="visible" data-choice="multiple">
+                        <div class="cinema-seat" data-row="1" data-col="1" data-direction="right"></div>
+                        <div class="cinema-seat" data-row="1" data-col="2" data-state="space"></div>
+                        <div class="cinema-seat" data-row="1" data-col="3" data-state="space"></div>
+                        <div class="cinema-seat" data-row="1" data-col="4" data-state="space"></div>
+                        <div class="cinema-seat" data-row="1" data-col="5" data-direction="left"></div>
+                        <div class="cinema-seat" data-row="2" data-col="1" data-direction="right"></div>
+                        <div class="cinema-seat" data-row="2" data-col="2" data-direction="right" data-state="disabled"></div>
+                        <div class="cinema-seat" data-row="2" data-col="3" data-state="space"></div>
+                        <div class="cinema-seat" data-row="2" data-col="4" data-direction="left" data-state="disabled"></div>
+                        <div class="cinema-seat" data-row="2" data-col="5" data-direction="left" data-state="disabled"></div>
+                        <div class="cinema-seat" data-row="3" data-col="1" data-direction="right"></div>
+                        <div class="cinema-seat" data-row="3" data-col="2" data-direction="right"></div>
+                        <div class="cinema-seat" data-row="3" data-col="3" data-state="space"></div>
+                        <div class="cinema-seat" data-row="3" data-col="4" data-direction="left"></div>
+                        <div class="cinema-seat" data-row="3" data-col="5" data-direction="left"></div>
+                    </div>
+                </div>
+        
+                <input type="submit" value="선택">
+            </form>
+        </div>
+
+        <div class="result">
+
+        </div>
+    </div>
+
+</body>
+</html>

@@ -57,7 +57,7 @@
 
         //좌석 표시 여부(없으면 hidden)
         var seatNoVisible = seatArea.dataset.seatno || "hidden";
-        
+
         this.options = {
             area:area,
             seatArea:seatArea,
@@ -126,12 +126,26 @@
         this.changeListener = listener;
     };
 
-    w.Hacademy.Reservation.prototype.getQueryString = function(){
-        var checkedList;
+    w.Hacademy.Reservation.prototype.getSelectedSeatList = function(){
         if(this.options.mode === "manager")
-            checkedList = this.options.seatArea.querySelectorAll(".cinema-seat:not(.empty),.cinema-space");
+            return this.options.seatArea.querySelectorAll(".cinema-seat:not(.empty),.cinema-space");
         else if(this.options.mode === "client")
-            checkedList = this.options.seatArea.querySelectorAll(".cinema-seat.active");
+            return this.options.seatArea.querySelectorAll(".cinema-seat.active");
+        else
+            return null;  
+    };
+
+    w.Hacademy.Reservation.prototype.getSelectedCount = function(){
+        var checkedList = this.getSelectedSeatList();
+        if(!checkedList){
+            return 0;
+        }
+
+        return checkedList.length;
+    };
+
+    w.Hacademy.Reservation.prototype.getQueryString = function(){
+        var checkedList = this.getSelectedSeatList();
         if(!checkedList || checkedList.length == 0){
             return;
         }
