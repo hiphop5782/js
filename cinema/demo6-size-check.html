@@ -25,13 +25,16 @@
     <script>
         window.addEventListener("load", function(){
             var cinema = new Hacademy.Reservation("#cinema");
-            cinema.addChangeListener(function(seat){
-                print(this);
+            cinema.addBeforeChangeListener(function(seat){
+                if(this.getSelectedCount() == 3){
+                    alert("최대 3자리까지만 선택이 가능합니다")
+                    return false;//이벤트 진행 차단
+                }
             });
-            print(cinema);
-            function print(app){
-                document.querySelector(".result").textContent = "현재 선택된 좌석 수 : " + app.getSelectedCount();
-            }
+            cinema.addChangeListener(function(seat){
+                //this == cinema 앱
+                document.querySelector(".result > span").textContent = this.getSelectedCount();
+            });
         });
     </script>
 </head>
@@ -69,9 +72,7 @@
             </form>
         </div>
 
-        <div class="result">
-
-        </div>
+        <div class="result">현재 선택된 좌석 수 : <span>0</span></div>
     </div>
 
 </body>

@@ -121,6 +121,10 @@
         }
     };
 
+    w.Hacademy.Reservation.prototype.addBeforeChangeListener = function(listener){
+        if(typeof listener !== "function") return;
+        this.beforeChangeListener = listener;
+    };
     w.Hacademy.Reservation.prototype.addChangeListener = function(listener){
         if(typeof listener !== "function") return;
         this.changeListener = listener;
@@ -364,6 +368,11 @@
     //의자와 영역을 교체하는 메소드
     w.Hacademy.Reservation.prototype.changeUnit = function(unit, mode){
         var app = this;
+
+        if(app.beforeChangeListener){
+            var result = app.beforeChangeListener.call(app, unit);
+            if(result === false) return;
+        }
 
         if(mode === "space"){
             unit.classList.remove("active", "empty", "disabled", "cinema-seat", "cinema-space");
