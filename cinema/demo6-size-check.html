@@ -42,8 +42,9 @@
     <h1 align="center">Demo 6 : 선택된 좌석 수 확인</h1>
     <ul>
         <li>선택된 좌석 수를 확인하고 싶을 경우 cinema의 개수 확인 명령을 사용</li>
-        <li>.addChangeListener()를 설정하여 변경 시 처리할 내용을 작성</li>
-        <li>변경 시 처리할 내용 안에서 .getSelectedCount()를 호출하여 선택된 좌석 수를 확인</li>
+        <li>.addBeforeChangeListener() 를 실행하여 변경 전 확인할 내용을 함수로 설정</li>
+        <li>.addChangeListener()를 실행하여 변경 후 처리할 내용을 함수로 작성</li>
+        <li>내용 안에서 .getSelectedCount()를 호출하여 선택된 좌석 수를 확인</li>
     </ul>
     <div class="float-box">
         <div>
