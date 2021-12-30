@@ -58,6 +58,10 @@
         //좌석 표시 여부(없으면 hidden)
         var seatNoVisible = seatArea.dataset.seatno || "hidden";
 
+        //좌석 이름 표시여부
+        var rowname = seatArea.dataset.rowname || 'number';
+        var colname = seatArea.dataset.colname || 'number';
+
         this.options = {
             area:area,
             seatArea:seatArea,
@@ -69,8 +73,11 @@
             choice:choice,
             fill:fill,
             sendName:sendName,
-            seatNoVisible:seatNoVisible
+            seatNoVisible:seatNoVisible,
+            rowname:rowname,
+            colname:colname
         };
+        //console.log("options", this.options);
 
         if(fill === 'auto'){
             this.automaticFillProcess();
@@ -169,15 +176,52 @@
         }
     };
 
+    w.Hacademy.Reservation.prototype.getRowBegin = function(){
+        return this.options.rowname === 'number' ? 1 : 'A'.charCodeAt(0);
+    };
+    w.Hacademy.Reservation.prototype.getRowEnd = function(){
+        var row = parseInt(this.getRowBegin());
+        row += parseInt(this.options.rowsize) - 1;
+        return row;
+    };
+    w.Hacademy.Reservation.prototype.getColumnBegin = function(){
+        return this.options.colname === 'number' ? 1 : 'A'.charCodeAt(0);
+    };
+    w.Hacademy.Reservation.prototype.getColumnEnd = function(){
+        var column = parseInt(this.getColumnBegin());
+        column += parseInt(this.options.colsize) - 1;
+        return column;
+    };
+    w.Hacademy.Reservation.prototype.convertRowToNumber = function(v){
+        return this.options.rowname === 'alphabet' ? v.charCodeAt(v) : parseInt(v);
+    };
+    w.Hacademy.Reservation.prototype.convertRowToOrigin = function(v){
+        return this.options.rowname === 'alphabet' ? String.fromCharCode(v) : v;
+    };
+    w.Hacademy.Reservation.prototype.convertColumnToNumber = function(v){
+        return this.options.colname === 'alphabet' ? v.charCodeAt(v) : parseInt(v);
+    };
+    w.Hacademy.Reservation.prototype.convertColumnToOrigin = function(v){
+        return this.options.colname === 'alphabet' ? String.fromCharCode(v) : v;
+    };
+
     w.Hacademy.Reservation.prototype.automaticFillProcess = function(){
-        for(var i=1; i <= this.options.rowsize; i++){
-            for(var j=1; j <= this.options.colsize; j++){
+        var rowBegin = this.getRowBegin();
+        var rowEnd = this.getRowEnd();
+        var colBegin = this.getColumnBegin();
+        var colEnd = this.getColumnEnd();
+
+        for(var i=rowBegin; i <= rowEnd; i++){
+            for(var j=colBegin; j <= colEnd; j++){
+                var rowValue = this.convertRowToOrigin(i);
+                var colValue = this.convertColumnToOrigin(j);
+
                 var seat = this.createUnit("normal");
                 seat.dataset.direction = "up";
-                seat.dataset.row = i;
-                seat.dataset.col = j;
+                seat.dataset.row = rowValue;
+                seat.dataset.col = colValue;
                 if(seat.setSeatNumber){
-                    seat.setSeatNumber(i+"-"+j);
+                    seat.setSeatNumber(rowValue+"-"+colValue);
                 }
                 this.options.seatArea.appendChild(seat);
             }
@@ -187,23 +231,30 @@
     };
 
     w.Hacademy.Reservation.prototype.manualFillProcess = function(){
-        var rowsize = this.options.rowsize;
-        var colsize = this.options.colsize;
+        var rowBegin = this.getRowBegin();
+        var rowEnd = this.getRowEnd();
+        var colBegin = this.getColumnBegin();
+        var colEnd = this.getColumnEnd();
+
         var seatArea = this.options.seatArea;
         var cloneSeatArea = seatArea.cloneNode(true);
         this.options.seatArea.innerHTML = "";
-        for(var i=1; i <= rowsize; i++){
-            for(var j=1; j <= colsize; j++){
-                var findElement = cloneSeatArea.querySelector(".cinema-seat[data-row='"+i+"'][data-col='"+j+"']");
+        for(var i=rowBegin; i <= rowEnd; i++){
+            for(var j=colBegin; j <= colEnd; j++){
+
+                var rowValue = this.options.rowname === 'alphabet' ? String.fromCharCode(i) : i;
+                var colValue = this.options.colname === 'alphabet' ? String.fromCharCode(j) : j;
+
+                var findElement = cloneSeatArea.querySelector(".cinema-seat[data-row='"+rowValue+"'][data-col='"+colValue+"']");
                 if(findElement){
                     var state = findElement.dataset.state || "normal";
                     var seat = this.createUnit(state);
-                    seat.dataset.row = i;
-                    seat.dataset.col = j;
+                    seat.dataset.row = rowValue;
+                    seat.dataset.col = colValue;
                     seat.dataset.direction = findElement.dataset.direction || "up";
                     seatArea.appendChild(seat);
                     if(seat.setSeatNumber){
-                        seat.setSeatNumber(i+"-"+j);
+                        seat.setSeatNumber(rowValue+"-"+colValue);
                     }
                 }
                 else {
@@ -321,12 +372,17 @@
 
     //상하좌우 확인하여 space 정리
     w.Hacademy.Reservation.prototype.calculateMergeSpace = function(unit){
-        var row = parseInt(unit.dataset.row);
-        var col = parseInt(unit.dataset.col);
+        var row = unit.dataset.row;
+        var col = unit.dataset.col;
+        
+        var rowNumber = this.convertRowToNumber(row);
+        var colNumber = this.convertColumnToNumber(col);
 
         //top
-        if(row > 0){
-            var tag = this.options.seatArea.querySelector(".cinema-space[data-row='"+(row-1)+"'][data-col='"+(col)+"']");
+        if(rowNumber > 0){
+            var rowValue = this.convertRowToOrigin(rowNumber-1);
+            var colValue = this.convertColumnToOrigin(colNumber);
+            var tag = this.options.seatArea.querySelector(".cinema-space[data-row='"+(rowValue)+"'][data-col='"+(colValue)+"']");
             if(tag){
                 unit.classList.add("top");
                 if(!tag.classList.contains("bottom"))
@@ -336,7 +392,9 @@
 
         //bottom
         if(row < this.options.rowsize){
-            var tag = this.options.seatArea.querySelector(".cinema-space[data-row='"+(row+1)+"'][data-col='"+(col)+"']");
+            var rowValue = this.convertRowToOrigin(rowNumber+1);
+            var colValue = this.convertColumnToOrigin(colNumber);
+            var tag = this.options.seatArea.querySelector(".cinema-space[data-row='"+(rowValue)+"'][data-col='"+(colValue)+"']");
             if(tag){
                 unit.classList.add("bottom");
                 if(!tag.classList.contains("top"))
@@ -346,7 +404,9 @@
 
         //left
         if(col > 0){
-            var tag = this.options.seatArea.querySelector(".cinema-space[data-row='"+(row)+"'][data-col='"+(col-1)+"']");
+            var rowValue = this.convertRowToOrigin(rowNumber);
+            var colValue = this.convertColumnToOrigin(colNumber-1);
+            var tag = this.options.seatArea.querySelector(".cinema-space[data-row='"+(rowValue)+"'][data-col='"+(colValue)+"']");
             if(tag){
                 unit.classList.add("left");
                 if(!tag.classList.contains("right"))
@@ -356,7 +416,9 @@
 
         //right
         if(col < this.options.colsize){
-            var tag = this.options.seatArea.querySelector(".cinema-space[data-row='"+(row)+"'][data-col='"+(col+1)+"']");
+            var rowValue = this.convertRowToOrigin(rowNumber);
+            var colValue = this.convertColumnToOrigin(colNumber+1);
+            var tag = this.options.seatArea.querySelector(".cinema-space[data-row='"+(rowValue)+"'][data-col='"+(colValue)+"']");
             if(tag){
                 unit.classList.add("right");
                 if(!tag.classList.contains("left"))

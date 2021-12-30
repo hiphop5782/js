@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>영화관 좌석 배치</title>
+    <link rel="stylesheet" type="text/css" href="./hacademy-cinema.css">
+    <style>
+        *{
+            box-sizing: border-box;
+        }
+        .float-box > div{
+            float:left;
+            width:50%;
+        }
+        .float-box::after{
+            content:"";
+            display: block;
+            clear:both;
+        }
+        .float-box > .result {
+            padding:0.5rem;
+        }
+    </style>
+    <script src="./hacademy-cinema.js"></script>
+    <script>
+        window.addEventListener("load", function(){
+            var cinema = new Hacademy.Reservation("#cinema");
+            cinema.addBeforeChangeListener(function(seat){
+                if(this.getSelectedCount() == 3){
+                    alert("최대 3자리까지만 선택이 가능합니다")
+                    return false;//이벤트 진행 차단
+                }
+            });
+            cinema.addChangeListener(function(seat){
+                //this == cinema 앱
+                document.querySelector(".result > span").textContent = this.getSelectedCount();
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1 align="center">Demo 7 : 좌석 이름 변경</h1>
+    <ul>
+        <li>좌석 이름을 숫자와 알파벳 사이에서 선택할 수 있음</li>
+        <li>줄 이름은 data-rowname="alphabet" 또는 data-rowname="number" 중 선택 가능(기본값 number)</li>
+        <li>칸 이름은 data-colname="alphabet" 또는 data-colname="number" 중 선택 가능(기본값 number)</li>
+        <li>예제는 줄은 알파벳, 칸은 숫자로 설정되어 있음</li>
+    </ul>
+    <div class="float-box">
+        <div>
+            <form method="get">
+                <div id="cinema" class="cinema-wrap" data-name="seat">
+                    <div class="cinema-seat-area" data-rowsize="3" data-colsize="5" data-rowname="alphabet" data-colname="number" data-mode="client" data-fill="manual"" data-seatno="visible" data-choice="multiple">
+                        <div class="cinema-seat" data-row="A" data-col="1" data-direction="right"></div>
+                        <div class="cinema-seat" data-row="A" data-col="2" data-state="space"></div>
+                        <div class="cinema-seat" data-row="A" data-col="3" data-state="space"></div>
+                        <div class="cinema-seat" data-row="A" data-col="4" data-state="space"></div>
+                        <div class="cinema-seat" data-row="A" data-col="5" data-direction="left"></div>
+                        <div class="cinema-seat" data-row="B" data-col="1" data-direction="right"></div>
+                        <div class="cinema-seat" data-row="B" data-col="2" data-direction="right" data-state="disabled"></div>
+                        <div class="cinema-seat" data-row="B" data-col="3" data-state="space"></div>
+                        <div class="cinema-seat" data-row="B" data-col="4" data-direction="left" data-state="disabled"></div>
+                        <div class="cinema-seat" data-row="B" data-col="5" data-direction="left" data-state="disabled"></div>
+                        <div class="cinema-seat" data-row="C" data-col="1" data-direction="right"></div>
+                        <div class="cinema-seat" data-row="C" data-col="2" data-direction="right"></div>
+                        <div class="cinema-seat" data-row="C" data-col="3" data-state="space"></div>
+                        <div class="cinema-seat" data-row="C" data-col="4" data-direction="left"></div>
+                        <div class="cinema-seat" data-row="C" data-col="5" data-direction="left"></div>
+                    </div>
+                </div>
+        
+                <input type="submit" value="선택">
+            </form>
+        </div>
+
+        <div class="result">현재 선택된 좌석 수 : <span>0</span></div>
+    </div>
+
+</body>
+</html>
