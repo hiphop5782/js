@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>영화관 좌석 배치</title>
+<<<<<<< HEAD:cinema/demo2-client-auto..html
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/hiphop5782/js@0.0.15/cinema/hacademy-cinema.css">
+=======
+    <link rel="stylesheet" type="text/css" href="./hacademy-cinema.css">
+>>>>>>> 53f88eae378318aeb6b2efa15bf10ec0d7b33216:cinema/demo3-client-auto..html
     <style>
         *{
             box-sizing: border-box;
@@ -21,7 +25,11 @@
             padding:0.5rem;
         }
     </style>
+<<<<<<< HEAD:cinema/demo2-client-auto..html
     <script src="https://cdn.jsdelivr.net/gh/hiphop5782/js@0.0.15/cinema/hacademy-cinema.js"></script>
+=======
+    <script src="./hacademy-cinema.js"></script>
+>>>>>>> 53f88eae378318aeb6b2efa15bf10ec0d7b33216:cinema/demo3-client-auto..html
     <script>
         window.addEventListener("load", function(){
             var cinema = new Hacademy.Reservation("#cinema");
@@ -36,7 +44,7 @@
     </script>
 </head>
 <body>
-    <h1 align="center">Demo 2 : Client auto mode</h1>
+    <h1 align="center">Demo 3 : Client auto mode</h1>
     <ul>
         <li>사용자 모드에서는 좌석의 선택만 가능</li>
         <li>.cinema-seat-area에 data-mode="client"로 설정하거나 미작성 시 사용자 모드 설정</li>
@@ -47,9 +55,9 @@
     </ul>
     <div class="float-box">
         <div>
-            <form action="example.html" method="get">
+            <form method="get">
                 <div id="cinema" class="cinema-wrap" data-name="seat">
-                    <div class="cinema-seat-area" data-rowsize="3" data-colsize="5" data-mode="client" data-fill="auto" data-seatno="visible"></div>
+                    <div class="cinema-seat-area" data-rowsize="3" data-colsize="5" data-rowname="alphabet" data-colname="alphabet" data-mode="client" data-fill="auto" data-seatno="visible"></div>
                 </div>
         
                 <input type="submit" value="선택">

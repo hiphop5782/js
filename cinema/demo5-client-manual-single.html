@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>영화관 좌석 배치</title>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/hiphop5782/js@0.0.15/cinema/hacademy-cinema.css">
+    <link rel="stylesheet" type="text/css" href="./hacademy-cinema.css">
     <style>
         *{
             box-sizing: border-box;
@@ -21,7 +21,7 @@
             padding:0.5rem;
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/gh/hiphop5782/js@0.0.15/cinema/hacademy-cinema.js"></script>
+    <script src="./hacademy-cinema.js"></script>
     <script>
         window.addEventListener("load", function(){
             var cinema = new Hacademy.Reservation("#cinema");
@@ -36,7 +36,7 @@
     </script>
 </head>
 <body>
-    <h1 align="center">Demo 4 : Client manual single mode</h1>
+    <h1 align="center">Demo 5 : Client manual single mode</h1>
     <ul>
         <li>사용자가 좌석을 하나만 선택하는 경우</li>
         <li>.cinema-seat-area에 data-mode="client"로 설정하거나 미작성 시 사용자 모드 설정</li>
@@ -50,7 +50,7 @@
     </ul>
     <div class="float-box">
         <div>
-            <form action="example.html" method="get">
+            <form method="get">
 
                 <div id="cinema" class="cinema-wrap" data-name="seat">
                     <div class="cinema-screen">상단 구조물 또는 제목 영역</div>

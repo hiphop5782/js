@@ -63,13 +63,13 @@
 }
 
 .cinema-wrap > .cinema-seat-area > .cinema-seat:not(.empty){
-    background-image: url("http://www.sysout.co.kr/file/image/285");
+    background-image: url("./image/seat-empty.png");
 }
 .cinema-wrap > .cinema-seat-area > .cinema-seat.active:not(.empty){
-    background-image: url("http://www.sysout.co.kr/file/image/283");
+    background-image: url("./image/seat-active.png");
 }
 .cinema-wrap > .cinema-seat-area > .cinema-seat.disabled:not(.empty){
-    background-image: url("http://www.sysout.co.kr/file/image/284");
+    background-image: url("./image/seat-disabled.png");
 }
 
 .cinema-wrap > .cinema-seat-area > .cinema-seat[data-direction=up]{
