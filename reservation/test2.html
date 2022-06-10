@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cimena jQuery plugin</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="./hacademy-reservation-jquery.js"></script>
+    <script>
+        $(function(){
+            $("#1st").reservationArea();
+            $("#2nd").reservationArea();
+        });
+    </script>
+</head> 
+<body>
+    <form>
+        <div class="reservation-area" id="1st">
+            <label class="reservation-unit" data-mode="empty" data-direction="up"></label>
+            <label class="reservation-unit" data-mode="empty" data-direction="right"></label>
+            <label class="reservation-unit" data-mode="empty" data-direction="left"></label>
+            <label class="reservation-unit" data-mode="empty" data-direction="down"></label>
+            <label class="reservation-unit" data-mode="active"></label>
+            <label class="reservation-unit" data-mode="disabled"></label>
+            <label class="reservation-unit" data-manage data-row="a" data-column="10"></label>
+        </div>
+        <input type="submit" value="전송">
+    </form>
+    <form>
+        <div class="reservation-area" id="2nd" data-row="2" data-column="3" data-manage></div>
+        <input type="submit" value="전송">
+    </form>
+</body>
+</html>
